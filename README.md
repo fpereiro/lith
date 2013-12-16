@@ -66,7 +66,7 @@ Correspondingly, each lith is an array made of three elements:
   - Case 1: either a lith or an array of liths.
   - Case 2: a string or a number, which is literally inserted.
   - Case 3: an array where each element is either a) a lith or an array of liths; b) a string or number.
-  - Case 3: a null or undefined value.
+  - Case 4: a null or undefined value.
 
 **Some things worthy of note:**
 
@@ -77,11 +77,7 @@ Correspondingly, each lith is an array made of three elements:
 
 2. If, for a given element, you want to omit the attributes but put contents, you still have to write an array with three elements, like in the example above. Otherwise, the contents will be taken for the attributes.
 
-3. You cannot put a string and an HTML element inside a container element. For example:
-
-   `<p>Hey there!<br></p>`   is impossible to express as lith.
-
-4. If you have non-ascii characters in a lith, and you're generating code in the browser, as long as the source file is invoked with the proper encoding, you will have no problem. For example, if scripts.js is saved and transmitted using utf-8, you should include it as:
+3. If you have non-ascii characters in a lith, and you're generating code in the browser, as long as the source file is invoked with the proper encoding, you will have no problem. For example, if scripts.js is saved and transmitted using utf-8, you should include it as:
 
    `<script src="scripts.js" charset="UTF-8"></script>`
 
@@ -104,7 +100,7 @@ As a side effect, lith will inform if it encountered a validation error through 
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is short (< 250 lines) and profusely commented, to encourage you to read it.
+The complete source code is contained in `lith.js`. It is short (< 250 lines) and profusely commented.
 
 ## License
 
