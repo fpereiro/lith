@@ -1,0 +1,17 @@
+{
+   "name": "lith",
+   "version": "1.0",
+   "description": "Module to generate HTML from Javascript object literals.",
+   "main": "lith.js",
+   "author": "Federico Pereiro <fpereiro@gmail.com>",
+   "contributors": ["Federico Pereiro <fpereiro@gmail.com>", "Hernan Rajchert (http://github.com/hrajchert)"],
+   "keywords": ["html"],
+   "repository" : {
+      "type": "git",
+      "url": "http://github.com/fpereiro/lith.git"
+   },
+   "bugs": {
+      "url": "http://github.com/fpereiro/lith/issues",
+      "email": "fpereiro@gmail.com"
+   }
+}
