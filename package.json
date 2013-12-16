@@ -1,6 +1,6 @@
 {
    "name": "lith",
-   "version": "1.0",
+   "version": "1.0.0",
    "description": "Module to generate HTML from Javascript object literals.",
    "main": "lith.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
