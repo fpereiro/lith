@@ -37,7 +37,7 @@ Please refer to README.md to see what this is about.
 
    It takes zero or more arguments. If the argument is an object or an array, it stringifies it. All arguments are concatenated (with spaces between them) and then printed through console.log (should the console exist).
 
-   e always return false.
+   e always returns false.
 
    */
 

@@ -104,4 +104,4 @@ The complete source code is contained in `lith.js`. It is short (< 250 lines) an
 
 ## License
 
-**lith** is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+lith is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.

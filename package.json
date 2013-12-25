@@ -1,10 +1,14 @@
 {
    "name": "lith",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Module to generate HTML from Javascript object literals.",
    "main": "lith.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
    "contributors": ["Federico Pereiro <fpereiro@gmail.com>", "Hernan Rajchert (http://github.com/hrajchert)"],
+   "license": [{
+      "type": "Public Domain",
+      "url": "http://github.com/fpereiro/lith#license"
+   }],
    "keywords": ["html"],
    "repository" : {
       "type": "git",
