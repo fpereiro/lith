@@ -97,7 +97,7 @@ This recursive definition of lithbag has the following desirable properties:
    <div><p></p><p></p></div>
    ```
    ```javascript
-   ['div', , [['p'], ['p']]]
+   ['div', [['p'], ['p']]]
    ```
 
 2. You can mix liths and literals (strings/numbers) at the same level:
