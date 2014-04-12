@@ -1,5 +1,5 @@
 /*
-lith - v2.0.3
+lith - v2.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -8,7 +8,7 @@ Please refer to README.md to see what this is about.
 
 (function () {
 
-   // We check for teishi and dale.
+   // We check for dale and teishi.
    if (typeof exports !== 'undefined') {
       var dale = require ('dale');
       var teishi = require ('teishi');
@@ -18,8 +18,8 @@ Please refer to README.md to see what this is about.
       var teishi = window.teishi;
    }
 
-   if (teishi === undefined || dale === undefined) {
-      console.log ('Both teishi and dale are required.');
+   if (dale === undefined || teishi === undefined) {
+      console.log ('Both dale and teishi are required.');
       return false;
    }
 
@@ -62,7 +62,7 @@ Please refer to README.md to see what this is about.
    // Void tags are self-closing tags. The term "void" comes from the W3C specification.
    lith.constants.HTML_void_tags = ['!DOCTYPE HTML', 'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
 
-   // The if block below ensures that all the void tags are contained in tags.all. Uncomment if you want to check it for yourself.
+   // The if block below ensures that all the void tags are contained in lith.constants.HTML_tags. Uncomment if you want to check it for yourself.
    /*
    if (teishi.stop ({
       compare: lith.constants.HTML_void_tags,
