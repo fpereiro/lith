@@ -1,5 +1,5 @@
 /*
-lith - v2.0.4
+lith - v2.0.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -228,7 +228,7 @@ Please refer to README.md to see what this is about.
       1) Creates a variable named "result" that will be a string containing the generated HTML string.
       1) For each element of its input (which always is an array):
          1-1) If it is a string or number, it concatenates it to a "result" string.
-         1-2) Depending on the dont_entitify argument being present or not (it is the second argument passed to lith.generate_lithbag), the string/number is entityified or not. This is only useful when generating a <style> tag, because entityfying its contents break the CSS contained in it. This flag is only set to true in step 6-2) of lith.generate_lith.
+         1-2) Depending on the dont_entitify argument being present or not (it is the second argument passed to lith.generate_lithbag), the string/number is entityified or not. This is only useful when generating a <style> or <script> tag, because entityfying its contents break the CSS contained in it. This flag is only set to true in step 6-2) of lith.generate_lith.
       2) If it is an array, it calls recursively lith.g.
          2-1) If lith.g returns false, the whole thing returns false.
          2-2) If lith.g returns an HTML string, lith.generate_lithbag appends that result to "result".
@@ -263,8 +263,8 @@ Please refer to README.md to see what this is about.
          output += result;
       }
       else {
-         // We place the contents. Notice how we set the dont_entityify argument by checking whether the tag is 'style' or not.
-         output += lith.generate_lithbag (contents, (tag === 'style' ? true : false));
+         // We place the contents. Notice how we set the dont_entityify argument by checking whether the tag is 'style' or 'script'.
+         output += lith.generate_lithbag (contents, ((tag === 'style' || tag === 'script') ? true : false));
       }
 
       // We place the closing tag, if the element is not a void one.
