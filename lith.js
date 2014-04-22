@@ -8,6 +8,19 @@ Please refer to README.md to see what this is about.
 
 (function () {
 
+   // *** SETUP ***
+
+   // Useful shorthand.
+   if (typeof exports !== 'undefined') {
+      var log = console.log;
+   }
+   else {
+      window.log = function () {
+         if (console) console.log (arguments);
+         else alert (arguments);
+      }
+   }
+
    // We check for dale and teishi.
    if (typeof exports !== 'undefined') {
       var dale = require ('dale');
@@ -16,40 +29,19 @@ Please refer to README.md to see what this is about.
    else {
       var dale = window.dale;
       var teishi = window.teishi;
-   }
-
-   if (dale === undefined || teishi === undefined) {
-      console.log ('Both dale and teishi are required.');
-      return false;
-   }
+      if (dale === undefined || teishi === undefined) {
+         log ('Both dale and teishi are required.');
+         return false;
+      }
 
    // This code allows us to export the lith in the browser and in the server.
    // Taken from http://backbonejs.org/docs/backbone.html
    var root = this;
    var lith;
-   if (typeof exports !== 'undefined') {
-      lith = exports;
-   }
-   else {
-      lith = root.lith = {};
-   }
+   if (typeof exports !== 'undefined') lith = exports;
+   else                                lith = root.lith = {};
 
-   // Taken from http://javascript.crockford.com/remedial.html and modified to replace quotes.
-   lith.entityify = function (string) {
-      if (teishi.stop ({
-         compare: string,
-         to: 'string',
-         test: teishi.test.type,
-         label: 'Entityified string'
-      })) return false;
-
-      return string
-         .replace (/&/g, '&amp;')
-         .replace (/</g, '&lt;')
-         .replace (/>/g, '&gt;')
-         .replace (/"/g, '&quot;')
-         .replace (/'/g, '&apos;');
-   }
+   // *** CONSTANTS ***
 
    lith.constants = {};
 
@@ -74,6 +66,25 @@ Please refer to README.md to see what this is about.
 
    lith.constants.attribute_value = ['string', 'number'];
 
+   // *** HELPER FUNCTIONS ***
+
+   // Taken from http://javascript.crockford.com/remedial.html and modified to replace quotes.
+   lith.entityify = function (string) {
+      if (teishi.stop ({
+         compare: string,
+         to: 'string',
+         test: teishi.test.type,
+         label: 'Entityified string'
+      })) return false;
+
+      return string
+         .replace (/&/g, '&amp;')
+         .replace (/</g, '&lt;')
+         .replace (/>/g, '&gt;')
+         .replace (/"/g, '&quot;')
+         .replace (/'/g, '&apos;');
+   }
+
    // This function is used both for validation and generation of liths. It takes a lith and returns an object with the tag, attributes and contents. It's sole purpose is to identify whether the second element of the lith is the contents instead of the attributes.
    lith.split_lith = function (lith) {
       var output = {tag: lith [0]};
@@ -86,6 +97,8 @@ Please refer to README.md to see what this is about.
       }
       return output;
    }
+
+   // *** VALIDATION ***
 
    /*
       The process of validation is done by the function lith.v.
@@ -199,6 +212,8 @@ Please refer to README.md to see what this is about.
       }
    }
 
+   // *** GENERATION ***
+
    /*
       The process of HTML generation is done by the function lith.g.
 
@@ -306,6 +321,8 @@ Please refer to README.md to see what this is about.
    }
 
    lith.css = {};
+
+   // *** CSS ***
 
    /*
       lith.css: like lith, but for CSS.

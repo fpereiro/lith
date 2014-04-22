@@ -16,7 +16,7 @@ I find two problems with existing template systems:
 
 lith intends to skirt both of this problems because it consists of javascript object literals. This means that you can incorporate lith straight into your code, having the full power of the language while being able to operate on lith structures (called **liths**).
 
-liths have the following nice properties:
+liths have the following properties:
 - They can be nested.
 - They can be easily generated and manipulated by javascript code.
 - They can be stored and transmitted in JSON format.
@@ -89,7 +89,7 @@ A lithbag is an array containing zero or more of the following elements:
 - An undefined.
 - An array which is either a lithbag or a lith.
 
-This recursive definition of lithbag has the following desirable properties:
+This recursive definition of lithbag has the following properties:
 
 1. The most obvious one: you can place an array of liths as the content of a given lith. This is necessary when an element has many children at the same level. For example:
 
@@ -152,7 +152,7 @@ lith will inform if it encountered a validation error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 400 lines long.
+The complete source code is contained in `lith.js`. It is about 420 lines long.
 
 ## lith.css
 
