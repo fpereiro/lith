@@ -152,7 +152,7 @@ lith will inform if it encountered a validation error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 420 lines long.
+The complete source code is contained in `lith.js`. It is about 410 lines long.
 
 ## lith.css
 

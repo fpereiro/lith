@@ -1,5 +1,5 @@
 /*
-lith - v2.0.9
+lith - v2.0.10
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -10,17 +10,6 @@ Please refer to README.md to see what this is about.
 
    // *** SETUP ***
 
-   // Useful shorthand.
-   if (typeof exports !== 'undefined') {
-      var log = console.log;
-   }
-   else {
-      window.log = function () {
-         if (console) console.log (arguments);
-         else alert (arguments);
-      }
-   }
-
    // We check for dale and teishi.
    if (typeof exports !== 'undefined') {
       var dale = require ('dale');
@@ -30,7 +19,7 @@ Please refer to README.md to see what this is about.
       var dale = window.dale;
       var teishi = window.teishi;
       if (dale === undefined || teishi === undefined) {
-         log ('Both dale and teishi are required.');
+         console.log ('Both dale and teishi are required.');
          return false;
       }
    }
