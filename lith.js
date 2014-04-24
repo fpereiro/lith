@@ -1,5 +1,5 @@
 /*
-lith - v2.0.7
+lith - v2.0.8
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -33,6 +33,7 @@ Please refer to README.md to see what this is about.
          log ('Both dale and teishi are required.');
          return false;
       }
+   }
 
    // This code allows us to export the lith in the browser and in the server.
    // Taken from http://backbonejs.org/docs/backbone.html
