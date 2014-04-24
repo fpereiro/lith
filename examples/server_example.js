@@ -20,9 +20,9 @@ fs.writeFileSync ('client_example.html', lith.g ([
          ['label', 'Div containing HTML output (will only change if you wrote a valid lith above)'], ['br'],
          ['div', {id: 'output', style: 'border: solid 1px;'}],
          ['script', {src: 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'}],
-         ['script', {src: '../node_modules/dale/dale.js'}],
-         ['script', {src: '../node_modules/teishi/teishi.js'}],
-         ['script', {src: '../lith.js'}],
+         ['script', {src: 'https://rawgit.com/fpereiro/dale/master/dale.js'}],
+         ['script', {src: 'https://rawgit.com/fpereiro/teishi/master/teishi.js'}],
+         ['script', {src: 'https://rawgit.com/fpereiro/lith/master/lith.js'}],
          ['script', {src: 'client_example.js'}]
       ]]
    ]]]), {encoding: 'utf8'});
