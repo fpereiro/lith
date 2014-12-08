@@ -1,10 +1,10 @@
 {
    "name": "lith",
-   "version": "2.0.11",
-   "description": "Tool to generate HTML from Javascript object literals.",
+   "version": "3.0.0",
+   "description": "Tool to generate HTML from javascript object literals.",
    "dependencies": {
-      "dale": "1.1.0",
-      "teishi": "1.0.12"
+      "dale": "2.1.2",
+      "teishi": "2.1.1"
    },
    "main": "lith.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",
@@ -13,7 +13,7 @@
       "type": "Public Domain",
       "url": "http://github.com/fpereiro/lith#license"
    }],
-   "keywords": ["html"],
+   "keywords": ["html", "templates"],
    "repository" : {
       "type": "git",
       "url": "http://github.com/fpereiro/lith.git"
