@@ -1274,6 +1274,7 @@ If the recursive call returned valid output, we concatenate it to the `output`.
 ```javascript
          else output += recursiveOutput;
       }
+```
 
 We return `output` and close the function.
 
