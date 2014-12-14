@@ -157,6 +157,10 @@ This recursive definition of a lithbag has the following properties:
    ```html
    <table>
       <tr>
+        <th>Id</th>
+        <th>Name</th>
+      </tr>
+      <tr>
          <td>1</td>
          <td>a</td>
       </tr>
@@ -470,7 +474,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.0.0
+lith - v3.0.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
