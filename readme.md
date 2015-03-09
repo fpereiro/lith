@@ -474,7 +474,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.0.8
+lith - v3.0.9
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -547,7 +547,7 @@ Every time I modify the tag constants, I run this code to ensure that there are 
 
 ```javascript
    /*
-   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, {multi: 'eachOf', test: teishi.test.equal}])) {
+   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, 'eachOf', teishi.test.equal])) {
       return false;
    }
    */
@@ -637,6 +637,7 @@ Notice that we use `validateLith` and `validateLithbag` to construct the error, 
 
 ```javascript
       var error = [
+         'lith.v',
          'Input to lith.g must be either a lith or a lithbag, but it is neither.',
          'It is not a lith because'
       ];
@@ -646,10 +647,10 @@ Notice that we use `validateLith` and `validateLithbag` to construct the error, 
       error = error.concat (validateLithbag);
 ```
 
-We report the error and then return `false` to indicate to the calling function that `input` was invalid. We then close the function.
+We report the error through `teishi.l` and then return `false` to indicate to the calling function that `input` was invalid. We then close the function.
 
 ```javascript
-      teishi.l ('lith.v', error);
+      teishi.l.apply (teishi.l, error);
       return false;
    }
 ```
@@ -671,8 +672,8 @@ A lithbag fulfills two conditions:
 - If it has containing elements (because it is a non-empty array), each of its elements should also have a valid lithbag type.
 
 ```javascript
-         ['lithbag', input, lith.k.lithbagElements, {multi: 'oneOf'}],
-         [teishi.t (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, {multi: 'eachOf'}]]
+         ['lithbag', input, lith.k.lithbagElements, 'oneOf'],
+         [teishi.t (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
 ```
 
 We will pass `true` as the last argument to `teishi.v`. This enables the teishi `mute` flag, which makes `teishi.v` return an error, instead of printing it, in case the input is invalid.
@@ -698,7 +699,7 @@ We now check that `input` is an array with length between 1 and 3. We store the 
       var result = teishi.v ([
          ['lith', input, 'array'],
          function () {
-            return ['lith length', input.length, {min: 1, max: 3}, {test: teishi.test.range}]
+            return ['lith length', input.length, {min: 1, max: 3}, teishi.test.range]
          }
 ```
 
@@ -732,13 +733,13 @@ We validate the remaining conditions of `input`, to determine whether it is a li
 The tag must be a valid tag.
 
 ```javascript
-            ['lith tag', input [0], lith.k.tags, {multi: 'oneOf', test: teishi.test.equal}],
+            ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
 ```
 
 The attributes element must be an object or `undefined`.
 
 ```javascript
-            ['lith attributes', input [1], ['object', 'undefined'], {multi: 'oneOf'}],
+            ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
 ```
 
 Every attribute key must start with a ASCII letter, underscore or colon, and must follow with zero or more of the following:
@@ -757,20 +758,20 @@ This is the *abstruse rule* I talked about earlier in the readme. This arcana wa
                ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
                dale.keys (input [1]),
                /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
-               {multi: 'each', test: teishi.test.match}
+               'each', teishi.test.match
             ]
 ```
 
 Attribute values can be strings or numbers (integers and floats).
 
 ```javascript
-            ['lith attribute values', dale.do (input [1], function (v) {return v}), ['string', 'integer', 'float'], {multi: 'eachOf'}],
+            ['lith attribute values', dale.do (input [1], function (v) {return v}), ['string', 'integer', 'float'], 'eachOf'],
 ```
 
 Contents can be any lithbag element: string, integer, float, array and undefined.
 
 ```javascript
-            ['lith contents', input [2], lith.k.lithbagElements, {multi: 'oneOf'}]
+            ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
          ]}
 ```
 
@@ -954,7 +955,7 @@ Also, there's no error checking here, since if any of these possible elements is
 We place the closing tag if the element is not a void one. We use teishi.stop to detect this, and pass a 'true' second argument, so that teishi won't report an error if the tag is not found to be void.
 
 ```javascript
-      if (teishi.stop (['', input [0], lith.k.voidTags, {multi: 'oneOf', test: teishi.test.equal}], true)) {
+      if (teishi.stop (['', input [0], lith.k.voidTags, 'oneOf', teishi.test.equal], true)) {
          output += '</' + input [0] + '>';
       }
 ```
@@ -1013,7 +1014,7 @@ We now check that `input` should fulfill the requirements for being a valid litc
       if (teishi.stop ([
          ['litc', input, 'array'],
          function () {
-            return ['lith length', input.length, {min: 1, max: 3}, {test: teishi.test.range}]
+            return ['litc length', input.length, {min: 1, max: 3}, teishi.test.range]
          }
 ```
 
@@ -1042,7 +1043,7 @@ We ensure that the selector is a string, we validate the attributes with a helpe
 ```javascript
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (input [1]),
-         ['litc contents', input [2], ['undefined', 'array'], {multi: 'oneOf'}]
+         ['litc contents', input [2], ['undefined', 'array'], 'oneOf']
 ```
 
 We close the call and the function.
@@ -1066,8 +1067,8 @@ We ensure that:
 We then close the call and the function.
 
 ```javascript
-         ['litc attributes', attributes, ['object', 'undefined'], {multi: 'oneOf'}],
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object'], {multi: 'eachOf'}],
+         ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object'], 'eachOf'],
       ]);
    }
 ```

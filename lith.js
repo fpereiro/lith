@@ -1,5 +1,5 @@
 /*
-lith - v3.0.8
+lith - v3.0.9
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -27,7 +27,7 @@ Please refer to readme.md to read the annotated source.
    }
 
    /*
-   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, {multi: 'eachOf', test: teishi.test.equal}])) {
+   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, 'eachOf', teishi.test.equal])) {
       return false;
    }
    */
@@ -62,6 +62,7 @@ Please refer to readme.md to read the annotated source.
       if (validateLithbag === true) return 'lithbag';
 
       var error = [
+         'lith.v',
          'Input to lith.g must be either a lith or a lithbag, but it is neither.',
          'It is not a lith because'
       ];
@@ -70,14 +71,14 @@ Please refer to readme.md to read the annotated source.
       error.push ('It is not a lithbag because');
       error = error.concat (validateLithbag);
 
-      teishi.l ('lith.v', error);
+      teishi.l.apply (teishi.l, error);
       return false;
    }
 
    lith.validateLithbag = function (input) {
       return teishi.v ([
-         ['lithbag', input, lith.k.lithbagElements, {multi: 'oneOf'}],
-         [teishi.t (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, {multi: 'eachOf'}]]
+         ['lithbag', input, lith.k.lithbagElements, 'oneOf'],
+         [teishi.t (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
       ], true);
    }
 
@@ -86,7 +87,7 @@ Please refer to readme.md to read the annotated source.
       var result = teishi.v ([
          ['lith', input, 'array'],
          function () {
-            return ['lith length', input.length, {min: 1, max: 3}, {test: teishi.test.range}]
+            return ['lith length', input.length, {min: 1, max: 3}, teishi.test.range]
          }
       ], true);
 
@@ -96,16 +97,16 @@ Please refer to readme.md to read the annotated source.
 
       return teishi.v ([
          function () {return [
-            ['lith tag', input [0], lith.k.tags, {multi: 'oneOf', test: teishi.test.equal}],
-            ['lith attributes', input [1], ['object', 'undefined'], {multi: 'oneOf'}],
+            ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
+            ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
             [
                ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
                dale.keys (input [1]),
                /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
-               {multi: 'each', test: teishi.test.match}
+               'each', teishi.test.match
             ],
-            ['lith attribute values', dale.do (input [1], function (v) {return v}), ['string', 'integer', 'float'], {multi: 'eachOf'}],
-            ['lith contents', input [2], lith.k.lithbagElements, {multi: 'oneOf'}]
+            ['lith attribute values', dale.do (input [1], function (v) {return v}), ['string', 'integer', 'float'], 'eachOf'],
+            ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
          ]}
       ], true);
    }
@@ -164,7 +165,7 @@ Please refer to readme.md to read the annotated source.
          output += lith.generateLithbag (input [2], ((input [0] === 'style' || input [0] === 'script') ? true : false));
       }
 
-      if (teishi.stop (['', input [0], lith.k.voidTags, {multi: 'oneOf', test: teishi.test.equal}], true)) {
+      if (teishi.stop (['', input [0], lith.k.voidTags, 'oneOf', teishi.test.equal], true)) {
          output += '</' + input [0] + '>';
       }
 
@@ -187,7 +188,7 @@ Please refer to readme.md to read the annotated source.
       if (teishi.stop ([
          ['litc', input, 'array'],
          function () {
-            return ['litc length', input.length, {min: 1, max: 3}, {test: teishi.test.range}]
+            return ['litc length', input.length, {min: 1, max: 3}, teishi.test.range]
          }
       ])) return false;
 
@@ -196,14 +197,14 @@ Please refer to readme.md to read the annotated source.
       return teishi.v ([
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (input [1]),
-         ['litc contents', input [2], ['undefined', 'array'], {multi: 'oneOf'}]
+         ['litc contents', input [2], ['undefined', 'array'], 'oneOf']
       ]);
    }
 
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
-         ['litc attributes', attributes, ['object', 'undefined'], {multi: 'oneOf'}],
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object'], {multi: 'eachOf'}],
+         ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object'], 'eachOf'],
       ]);
    }
 
