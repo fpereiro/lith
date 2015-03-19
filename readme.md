@@ -54,6 +54,34 @@ lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark']);
 lith.g (['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]);
 ```
 
+### Table
+
+```html
+<table>
+   <tr id="row1">
+      <td>A1</td>
+      <td>B1</td>
+   </tr>
+   <tr id="row2">
+      <td>A2</td>
+      <td>B2</td>
+   </tr>
+</table>
+```
+
+```javascript
+['table', [
+   ['tr', {id: 'row1'}, [
+      ['td', 'A1'],
+      ['td', 'B1']
+   ]],
+   ['tr', {id: 'row2'}, [
+      ['td', 'A2'],
+      ['td', 'B2']
+   ]]
+]]
+```
+
 ## Installation
 
 The dependencies of lith are two:
