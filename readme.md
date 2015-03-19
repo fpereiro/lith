@@ -22,6 +22,20 @@ liths have the following properties:
 - They can be stored and transmitted in JSON format.
 - Tags are closed and strings are entityified automatically.
 
+## Usage Examples
+
+```javascript
+lith.g (['br']) -> <br>
+```
+
+```javascript
+lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark']) -> <p id="p3" class="remark">This is a remark</p>
+```
+
+```javascript
+['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']] -> <div id="container"><p class="remark">This is a remark</p></div>
+```
+
 ## Installation
 
 The dependencies of lith are two:
@@ -38,31 +52,6 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
-
-## Examples
-
-Before explaining the lith format, I'd like to show you some examples of HTML elements and their corresponding liths.
-
-```html
-<br>
-```
-```javascript
-['br']
-```
-
-```html
-<p id="p3" class="remark">This is a remark</p>
-```
-
-```javascript
-['p', {id: 'p3', class: 'remark'}, 'This is a remark']
-```
-```html
-<div id="container"><p class="remark">This is a remark</p></div>
-```
-```javascript
-['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]
-```
 
 ## Structure of a lith
 
@@ -474,7 +463,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.0.10
+lith - v3.0.11
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
