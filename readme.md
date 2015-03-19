@@ -22,18 +22,23 @@ liths have the following properties:
 - They can be stored and transmitted in JSON format.
 - Tags are closed and strings are entityified automatically.
 
-## Usage Examples
+## Usage examples
+
+To generate `<br>`:
 
 ```javascript
-lith.g (['br']) -> <br>
+lith.g (['br'])
 ```
 
-```javascript
-lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark']) -> <p id="p3" class="remark">This is a remark</p>
-```
+To generate `<p id="p3" class="remark">This is a remark</p>`:
 
 ```javascript
-['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']] -> <div id="container"><p class="remark">This is a remark</p></div>
+lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark'])
+```
+To generate `<div id="container"><p class="remark">This is a remark</p></div>`:
+
+```javascript
+['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]
 ```
 
 ## Installation
