@@ -24,21 +24,28 @@ liths have the following properties:
 
 ## Usage examples
 
-To generate `<br>`:
+```html
+<br>
+```
 
 ```javascript
 lith.g (['br'])
 ```
 
-To generate `<p id="p3" class="remark">This is a remark</p>`:
-
-```javascript
-lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark'])
+```html
+p id="p3" class="remark">This is a remark</p>
 ```
-To generate `<div id="container"><p class="remark">This is a remark</p></div>`:
 
 ```javascript
-['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]
+lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark']);
+```
+
+```html
+div id="container"><p class="remark">This is a remark</p></div>
+```
+
+```javascript
+lith.g (['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]);
 ```
 
 ## Installation
