@@ -24,6 +24,8 @@ liths have the following properties:
 
 ## Usage examples
 
+### Simple tag
+
 ```html
 <br>
 ```
@@ -32,16 +34,20 @@ liths have the following properties:
 lith.g (['br'])
 ```
 
+### Tag with properties and contents
+
 ```html
-p id="p3" class="remark">This is a remark</p>
+<p id="p3" class="remark">This is a remark</p>
 ```
 
 ```javascript
 lith.g (['p', {id: 'p3', class: 'remark'}, 'This is a remark']);
 ```
 
+### Nested tags
+
 ```html
-div id="container"><p class="remark">This is a remark</p></div>
+<div id="container"><p class="remark">This is a remark</p></div>
 ```
 
 ```javascript
