@@ -1,5 +1,5 @@
 /*
-lith - v3.0.11
+lith - v3.0.12
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -61,7 +61,7 @@ To try this example, run `node example.js` and then open `example.html` in your 
          ]]
       ]), {encoding: 'utf8'});
 
-      teishi.l ('example.js', ['example.html generated successfully']);
+      teishi.l ('Success', 'example.html generated successfully');
    }
 
    else {

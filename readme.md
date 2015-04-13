@@ -70,7 +70,7 @@ lith.g (['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]
 ```
 
 ```javascript
-['table', [
+lith.g (['table', [
    ['tr', {id: 'row1'}, [
       ['td', 'A1'],
       ['td', 'B1']
@@ -79,7 +79,7 @@ lith.g (['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]
       ['td', 'A2'],
       ['td', 'B2']
    ]]
-]]
+]]);
 ```
 
 ## Installation
@@ -509,7 +509,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.0.11
+lith - v3.0.12
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
