@@ -236,7 +236,7 @@ Please refer to readme.md to read the annotated source.
 
       output += selector + '{';
 
-      function addAttributes (attributes) {
+      var addAttributes = function (attributes) {
          if (lith.css.vAttributes (attributes) === false) return false;
          if (dale.stopOn (attributes, false, function (v, k) {
             if (teishi.t (v) !== 'object') {

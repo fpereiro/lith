@@ -1239,7 +1239,7 @@ Since attributes can be arbitrarily nested, we need a function (instead of a loo
 `addAttributes` takes a single argument `attributes`.
 
 ```javascript
-      function addAttributes (attributes) {
+      var addAttributes = function (attributes) {
 ```
 
 We first validate the attributes using `lith.css.vAttributes`. This invocation is the reason for splitting `lith.css.vAttributes` into its own function.
