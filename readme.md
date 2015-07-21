@@ -241,14 +241,17 @@ If liths generate HTML, what generates CSS? Well, a **litc**! It's unpronounceab
 
 Let's see a few examples:
 
+### Simple selector
+
 ```css
 div.links {
    width: 50%;
+   height: 50%;
 }
 ```
 
 ```javascript
-['div.links', {width: '50%'}]
+['div.links', {width: '50%', height: '50%'}]
 ```
 
 ```css
@@ -260,6 +263,23 @@ a, p {
 ```javascript
 ['a, p', {'font-size': '120%'}]
 ```
+
+### Multiple properties for a single value
+
+```css
+p {
+   padding-top: 10px;
+   padding-bottom: 10px;
+   padding-left: 5px;
+   padding-right: 5px;
+}
+```
+
+```javascript
+['p', {'padding-top, padding-bottom': '10px', 'padding-left, padding-right': '5px'}]
+```
+
+### Nested selector
 
 ```css
 div.links {
@@ -274,6 +294,8 @@ div.links p {
 ```javascript
 ['div.links', {width: '50%'}, ['p', {'font-size': '120%'}]]
 ```
+
+### Nested selector with parent referencing
 
 ```css
 a {
@@ -509,7 +531,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.0.15
+lith - v3.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -1236,7 +1258,7 @@ The attributes of the litc can be either `undefined` or an object. If the attrib
 
 Since attributes can be arbitrarily nested, we need a function (instead of a loop) to process nested attributes recursively. For that purpose, we will define an inner function `addAttributes`.
 
-`addAttributes` takes a single argument `attributes`.
+`addAttributes` takes a single argument `attributes`. It will return either `false` (if it finds an error) or `undefined` (if the input is valid). All output is done by side-effect, because we concatenate it to the outer variable `output`.
 
 ```javascript
       var addAttributes = function (attributes) {
@@ -1250,32 +1272,29 @@ If `attributes` is invalid, we return `false`.
          if (lith.css.vAttributes (attributes) === false) return false;
 ```
 
-We are going to iterate `attributes`. If the inner function returns `false`, we will stop the iteration and return `false`.
+We are going to iterate `attributes`. If the inner function returns `false`, we will stop the iteration and return `false`. Otherwise, we'll proceed to the last `attributes` and return `undefined`.
 
 ```javascript
-         if (dale.stopOn (attributes, false, function (v, k) {
+         return dale.stopOn (attributes, false, function (v, k) {
 ```
 
-If the (valid) attribute being iterated is not an object, it must be either a string or a number. We add its key and its value to `output`, placing a colon between the key and the value and a trailing semicolon.
+If the attribute being iterated is an object, we invoke `addAttributes` recursively and return whatever this function call returns. The recursive invocation will handle adding the nested attributes to `output`.
 
 ```javascript
-            if (teishi.t (v) !== 'object') {
-               output += k + ':' + v + ';';
-            }
+            if (teishi.t (v) === 'object') return addAttributes (v);
 ```
 
-If the attribute being iterated is an object, we invoke `addAttributes` recursively. If this invocation returns `false`, we return `false`. The recursive invocation will handle adding the nested attributes to `output`.
+If the (valid) attribute being iterated is not an object, it must be either a string or a number. This means that this is a terminal value, so we want to add its key and its value to `output`, placing a colon between the key and the value and a trailing semicolon.
+
+However, multiple properties may be contained in the same key. For example, if the key is `padding-top, padding-bottom`, and the value is `0`, we want to generate two css properties, one for each type of padding, both set to the same value. The idea behind this is to take the comma notation of selectors and extrapolate it to properties.
+
+Hence, we'll take the key, split it by a comma (plus optional trailing spaces), and then iterate those properties and add them to `output`. When no commas are present, this will work anyway.
 
 ```javascript
-            else {
-               if (addAttributes (v) === false) return false;
-            }
-```
-
-If the function returned `false`, we return `false`. If it's not the case, `output` already has all the attributes, since we've been concatenating them to it from inside this function.
-
-```javascript
-         }) === false) return false;
+            dale.do (k.split (/,\s*/), function (v2) {
+               output += v2 + ':' + v + ';';
+            });
+         });
       }
 ```
 

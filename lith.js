@@ -1,5 +1,5 @@
 /*
-lith - v3.0.15
+lith - v3.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -238,14 +238,12 @@ Please refer to readme.md to read the annotated source.
 
       var addAttributes = function (attributes) {
          if (lith.css.vAttributes (attributes) === false) return false;
-         if (dale.stopOn (attributes, false, function (v, k) {
-            if (teishi.t (v) !== 'object') {
-               output += k + ':' + v + ';';
-            }
-            else {
-               if (addAttributes (v) === false) return false;
-            }
-         }) === false) return false;
+         return dale.stopOn (attributes, false, function (v, k) {
+            if (teishi.t (v) === 'object') return addAttributes (v);
+            dale.do (k.split (/,\s*/), function (v2) {
+               output += v2 + ':' + v + ';';
+            });
+         });
       }
 
       if (addAttributes (input [1]) === false) return false;

@@ -1,5 +1,5 @@
 /*
-lith - v3.0.15
+lith - v3.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -43,7 +43,7 @@ To try this example, run `node example.js` and then open `example.html` in your 
                      ['textarea', {id: 'inputLith'}], ['br'],
                      ['label', 'litc input - insert a valid litc below'], ['br'],
                      ['textarea', {id: 'inputLitc'}], ['br'],
-                     ['label', 'Output (will only change if you wrote a valid lith above)'], ['br'],
+                     ['label', 'Output (will only change if you wrote a valid lith + litc above)'], ['br'],
                      ['textarea', {readonly: 'readonly', id: 'outputText'}], ['br'],
                   ]],
                   ['div', {class: 'col-xs-6'}, [
@@ -89,7 +89,7 @@ To try this example, run `node example.js` and then open `example.html` in your 
          });
 
          $ ('#inputLith').val (JSON.stringify (['a', 'Surrrrrrrrrrrrfin\' bird']));
-         $ ('#inputLitc').val (JSON.stringify (['a', {'font-size': '14px'}, ['&:hover', {cursor: 'pointer', color: 'orange'}]]));
+         $ ('#inputLitc').val (JSON.stringify (['a', {'font-size': '22px', mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange'}]]));
 
          $ ('#inputLith').trigger ('propertychange');
       });
