@@ -206,6 +206,28 @@ This recursive definition of a lithbag has the following properties:
    </table>
    ```
 
+## HTML escapes
+
+lith will escape all special characters (`'&'`, `<`, `>, `"`, `'` and `\``) when generating HTML. However, the contents of `style` and `script` tags will not be escaped, since those special characters are expected to remain unescaped in both CSS and JS.
+
+If you need to insert a chunk of literal HTML into a lith, you can do it by using the `LITERAL` pseudo-tag:
+
+```javascript
+lith.g (['div', [
+   ['p', 'Hi'],
+   ['LITERAL', '<p>Hello!</p>']
+]]);
+```
+
+This will generate the following HTML:
+
+```html
+<div>
+   <p>Hi</p>
+   <p>Hello!</p>
+</div>
+```
+
 ## Non-ASCII characters
 
 If you have non-ascii characters in a lith, and you're generating code in the browser, as long as the source file is invoked with the proper encoding, you will have no problem. For example, if scripts.js is saved and transmitted using utf-8, you should include it as:
@@ -531,7 +553,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.1.1
+lith - v3.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -583,10 +605,10 @@ We define an object `lith.k` to hold some constants.
 
 `lith.k.tags` contains [every valid HTML5 tag](http://www.w3.org/TR/html-markup/elements.html). Interestingly enough, there are 108 tags.
 
-Although `'!DOCTYPE HTML'` is a declaration and not a tag, we add it to the list of tags anyway, so that we can also generate the doctype with lith.
+Although `'!DOCTYPE HTML'` is a declaration and not a tag, we add it to the list of tags anyway, so that we can also generate the doctype with lith. We will also add `'LITERAL'`, which is a pseudo-tag useful for inserting chunks of raw HTML into a lith.
 
 ```javascript
-      tags: ['!DOCTYPE HTML', 'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'],
+      tags: ['!DOCTYPE HTML', 'LITERAL', 'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'map', 'mark', 'menu', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'],
 ```
 
 `lith.k.voidTags` contains the list of [tags that do not need to be closed](http://www.w3.org/TR/html-markup/syntax.html#syntax-elements), also known as *self-closing tags*. The term "void" comes from the W3C specification.
@@ -951,6 +973,12 @@ We invoke `lith.split` on `input` so that the lith will now have three elements.
 
 ```javascript
       input = lith.split (input);
+```
+
+If the tag is `'LITERAL'`, we will just return the contents of the lith without any further modifications.
+
+```javascript
+      if (input [0] === 'LITERAL') return input [2];
 ```
 
 We create a local variable `output` and place in it an opening angle bracket `<`, plus the tag.
