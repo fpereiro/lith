@@ -111,7 +111,7 @@ Correspondingly, each lith is an array made of three elements:
 
 1. Tag: a string, containing a valid HTML tag. For example, `'br'`.
 2. Attributes:
-  - Case 1: An object, where each key in the object matches a string or a number. The keys are already strings (since that's how javascript represents object literal keys) and are expected to be so. There is an abstruse rule for validating attribute names (keys), explained in the source code, but you don't need to know it. And attribute values must be either strings or numbers.
+  - Case 1: An object, where each key in the object matches a string, a number or `undefined`. The keys are already strings (since that's how javascript represents object literal keys) and are expected to be so. There is an abstruse rule for validating attribute names (keys), explained in the source code, but you don't need to know it. And attribute values must be either strings, numbers or `undefined`. If an attribute value is `undefined`, the entire attribute will be ignored.
   - Case 2: `undefined`.
 3. Contents:
   - Case 1: a lith.
@@ -333,6 +333,33 @@ a:hover {
 ['a', {'font-size': '120%'}, ['&:hover', {color: 'lime'}]]
 ```
 
+### CSS Reset
+
+Taken from [Eric Meyer's CSS reset] (http://meyerweb.com/eric/tools/css/reset/).
+
+```javascript
+[
+   ['html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video', {
+      'margin, padding, border': 0,
+      'font-size': '100%',
+      font: 'inherit',
+      'vertical-align': 'baseline'
+   }],
+   ['article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section', {display: 'block'}],
+   ['body', {'line-height': 1}],
+   ['ol, ul', {'list-style': 'none'}],
+   ['blockquote, q', {quotes: 'none'}],
+   ['blockquote:before, blockquote:after, q:before, q:after', {content: "''"}],
+   ['blockquote:before, blockquote:after, q:before, q:after', {content: 'none'}],
+   ['table', {
+      'border-collapse': 'collapse',
+      'border-spacing': 0
+   }],
+];
+```
+
+## litc structure
+
 A litc is an array containing three elements:
 
 1. Selector
@@ -341,7 +368,7 @@ A litc is an array containing three elements:
 
 The selector is merely a string and it is required. The other two elements are optional.
 
-The attributes element is either `undefined` or an object where every key is a CSS attribute and its values are either a number or a string. For example:
+The attributes element is either `undefined` or an object where every key is a CSS attribute and its values are either a number, a string or undefined. For example:
 
 ```javascript
 ['a', {
@@ -367,6 +394,22 @@ If the attributes object is `undefined`, we consider the litc to have zero prope
 
 ```javascript
 ['a']
+```
+
+```css
+a {}
+```
+
+If an attribute value is set to `undefined`, the attribute will be ignored. For example:
+
+```javascript
+['a', {'font-weight': isHeader ? 'bold' : undefined}]
+```
+
+will yield these two CSS rules, depending on whether `isHeader` is truthy or not:
+
+```css
+a {font-weight: 'bold'}
 ```
 
 ```css
@@ -547,13 +590,13 @@ If the input is invalid, lith will print an error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 260 lines long.
+The complete source code is contained in `lith.js`. It is about 250 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.2.0
+lith - v3.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -714,23 +757,10 @@ If we reach this point of the function, it's because `input` is neither a lith n
 
 Notice that we use `validateLith` and `validateLithbag` to construct the error, since these variables hold each individual error message. This is the reason for which we stored these results in variables.
 
-```javascript
-      var error = [
-         'lith.v',
-         'Input to lith.g must be either a lith or a lithbag, but it is neither.',
-         'It is not a lith because'
-      ];
-      error = error.concat (validateLith);
-      error [error.length - 1] += '.'
-      error.push ('It is not a lithbag because');
-      error = error.concat (validateLithbag);
-```
-
-We report the error through `teishi.l` and then return `false` to indicate to the calling function that `input` was invalid. We then close the function.
+Also notice that the function will return `false`, since `teishi.l` always returns `false` after printing a message.
 
 ```javascript
-      teishi.l.apply (teishi.l, error);
-      return false;
+      return teishi.l ('lith.v', 'Input to lith.g must be either a lith or a lithbag, but it is neither.', 'It is not a lith because', validateLith + '.', 'It is not a lithbag because', validateLithbag + '.');
    }
 ```
 
@@ -805,8 +835,7 @@ After this, input will always be an array with three elements, a tag, attributes
 We validate the remaining conditions of `input`, to determine whether it is a lith. For this, we invoke `teishi.l` and we return its result.
 
 ```javascript
-      return teishi.v ([
-         function () {return [
+      return teishi.v (function () {return [
 ```
 
 The tag must be a valid tag.
@@ -841,10 +870,10 @@ This is the *abstruse rule* I talked about earlier in the readme. This arcana wa
             ]
 ```
 
-Attribute values can be strings or numbers (integers and floats).
+Attribute values can be strings, numbers (integers and floats) or `undefined`.
 
 ```javascript
-            ['lith attribute values', dale.do (input [1], function (v) {return v}), ['string', 'integer', 'float'], 'eachOf'],
+            ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined'], 'eachOf'],
 ```
 
 Contents can be any lithbag element: string, integer, float, array and undefined.
@@ -857,7 +886,7 @@ Contents can be any lithbag element: string, integer, float, array and undefined
 We set the `mute` flag, to return the error message instead of printing it directly.
 
 ```javascript
-      ], true);
+      ]}, true);
    }
 ```
 
@@ -993,12 +1022,12 @@ We iterate the attributes of the lith.
       dale.do (input [1], function (v, k) {
 ```
 
-We concatenate the attribute key and the attribute value into `output`, putting a `=` in the middle.
+If the attribute value is not `undefined`, we concatenate the attribute key and the attribute value into `output`, putting a `=` in the middle.
 
 Mind that we entityify both the key and the value. Also mind that we use double quotes for enclosing the value. Finally, notice that we coerce `k` and `v` into strings before passing them to `lith.entityify`.
 
 ```javascript
-         output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v !== undefined) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
       });
 ```
 
@@ -1147,13 +1176,13 @@ We close the call and the function.
 
 We ensure that:
 - `attributes` is either `undefined` or an object.
-- The elements within `attributes` are strings, integers, floats or objects.
+- The elements within `attributes` are strings, integers, floats, objects or `undefined`.
 
 We then close the call and the function.
 
 ```javascript
          ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object'], 'eachOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined'], 'eachOf'],
       ]);
    }
 ```
@@ -1304,6 +1333,12 @@ We are going to iterate `attributes`. If the inner function returns `false`, we 
 
 ```javascript
          return dale.stopOn (attributes, false, function (v, k) {
+```
+
+If the attribute value is `undefined`, we ignore it.
+
+```javascript
+            if (v === undefined) return;
 ```
 
 If the attribute being iterated is an object, we invoke `addAttributes` recursively and return whatever this function call returns. The recursive invocation will handle adding the nested attributes to `output`.

@@ -1,5 +1,5 @@
 /*
-lith - v3.2.0
+lith - v3.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -61,18 +61,7 @@ Please refer to readme.md to read the annotated source.
       var validateLithbag = lith.validateLithbag (input);
       if (validateLithbag === true) return 'lithbag';
 
-      var error = [
-         'lith.v',
-         'Input to lith.g must be either a lith or a lithbag, but it is neither.',
-         'It is not a lith because'
-      ];
-      error = error.concat (validateLith);
-      error [error.length - 1] += '.'
-      error.push ('It is not a lithbag because');
-      error = error.concat (validateLithbag);
-
-      teishi.l.apply (teishi.l, error);
-      return false;
+      return teishi.l ('lith.v', 'Input to lith.g must be either a lith or a lithbag, but it is neither.', 'It is not a lith because', validateLith + '.', 'It is not a lithbag because', validateLithbag + '.');
    }
 
    lith.validateLithbag = function (input) {
@@ -95,8 +84,7 @@ Please refer to readme.md to read the annotated source.
 
       input = lith.split (input);
 
-      return teishi.v ([
-         function () {return [
+      return teishi.v (function () {return [
             ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
             ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
             [
@@ -105,10 +93,9 @@ Please refer to readme.md to read the annotated source.
                /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
                'each', teishi.test.match
             ],
-            ['lith attribute values', dale.do (input [1], function (v) {return v}), ['string', 'integer', 'float'], 'eachOf'],
+            ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined'], 'eachOf'],
             ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
-         ]}
-      ], true);
+      ]}, true);
    }
 
    // *** LITH GENERATION ***
@@ -153,7 +140,7 @@ Please refer to readme.md to read the annotated source.
       var output = '<' + input [0];
 
       dale.do (input [1], function (v, k) {
-         output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v !== undefined) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
       });
 
       output += '>';
@@ -206,7 +193,7 @@ Please refer to readme.md to read the annotated source.
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
          ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object'], 'eachOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined'], 'eachOf'],
       ]);
    }
 
@@ -241,6 +228,7 @@ Please refer to readme.md to read the annotated source.
       var addAttributes = function (attributes) {
          if (lith.css.vAttributes (attributes) === false) return false;
          return dale.stopOn (attributes, false, function (v, k) {
+            if (v === undefined) return;
             if (teishi.t (v) === 'object') return addAttributes (v);
             dale.do (k.split (/,\s*/), function (v2) {
                output += v2 + ':' + v + ';';
