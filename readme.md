@@ -97,6 +97,13 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 <script src="lith.js"></script>
 ```
 
+Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
+
+```html
+<script src="https://cdn.rawgit.com/fpereiro/dale/01e0c514e9615d8d7adb60187cfdc702e06efd66/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/198f2b8b5869bdc696acb02e55c85dfe40578c5f/teishi.js"></script>
+```
+
 And you also can use it in node.js. To install: `npm install lith`
 
 ## Structure of a lith
@@ -596,7 +603,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.3.0
+lith - v3.3.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -936,10 +943,10 @@ We will now iterate through the elements of `lithbag`.
 
 Notice that if `lithbag` is `undefined`, the entire function below will not be executed and `output` will remain being equal to an empty string.
 
-We use `dale.stopOn` and pass `false` as the second argument because we want to detect invalid lithbag elements and stop if one is found. If an invalid element is found, the inner function passed as third argument to `dale.stopOn` will return `false`. Other return values will be ignored, because the valid output will be concatenated into the `output` string.
+We use `dale.stop` and pass `false` as the second argument because we want to detect invalid lithbag elements and stop if one is found. If an invalid element is found, the inner function passed as third argument to `dale.stop` will return `false`. Other return values will be ignored, because the valid output will be concatenated into the `output` string.
 
 ```javascript
-      if (dale.stopOn (lithbag, false, function (v) {
+      if (dale.stop (lithbag, false, function (v) {
 ```
 
 We now deal with simple values (string, integer and float). Notice we deliberately ignore `undefined`, since we don't want it to produce any output.
@@ -979,7 +986,7 @@ If the `recursiveOutput` is valid, it will be a string. We will concatenate it t
          }
 ```
 
-If the call to `dale.stopOn` returned `false`, we found an invalid (array) lithbag, so we return `false`.
+If the call to `dale.stop` returned `false`, we found an invalid (array) lithbag, so we return `false`.
 
 ```javascript
       }) === false) return false;
@@ -1224,7 +1231,7 @@ If the first element of `input` is also an array, it can only be a litcbag, beca
 We iterate through the elements of the litcbag. If any of the results of the inner function is `false`, the iteration will be stopped.
 
 ```javascript
-         if (dale.stopOn (input, false, function (v, k) {
+         if (dale.stop (input, false, function (v, k) {
 ```
 
 We invoke `lith.css.g` recursively, passing the element (`v`) and `selector`.
@@ -1332,7 +1339,7 @@ If `attributes` is invalid, we return `false`.
 We are going to iterate `attributes`. If the inner function returns `false`, we will stop the iteration and return `false`. Otherwise, we'll proceed to the last `attributes` and return `undefined`.
 
 ```javascript
-         return dale.stopOn (attributes, false, function (v, k) {
+         return dale.stop (attributes, false, function (v, k) {
 ```
 
 If the attribute value is `undefined`, we ignore it.

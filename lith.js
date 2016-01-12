@@ -1,5 +1,5 @@
 /*
-lith - v3.3.0
+lith - v3.3.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -114,7 +114,7 @@ Please refer to readme.md to read the annotated source.
 
       var output = '';
 
-      if (dale.stopOn (lithbag, false, function (v) {
+      if (dale.stop (lithbag, false, function (v) {
 
          if (teishi.t (v) === 'string' || teishi.t (v) === 'integer' || teishi.t (v) === 'float') {
             output += (dontEntityify ? v : lith.entityify (v + ''));
@@ -208,7 +208,7 @@ Please refer to readme.md to read the annotated source.
       var output = '';
 
       if (teishi.t (input [0]) === 'array') {
-         if (dale.stopOn (input, false, function (v, k) {
+         if (dale.stop (input, false, function (v, k) {
             var result = lith.css.g (v, selector);
             if (result === false) return false;
             output += result;
@@ -227,7 +227,7 @@ Please refer to readme.md to read the annotated source.
 
       var addAttributes = function (attributes) {
          if (lith.css.vAttributes (attributes) === false) return false;
-         return dale.stopOn (attributes, false, function (v, k) {
+         return dale.stop (attributes, false, function (v, k) {
             if (v === undefined) return;
             if (teishi.t (v) === 'object') return addAttributes (v);
             dale.do (k.split (/,\s*/), function (v2) {
