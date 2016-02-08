@@ -1,7 +1,7 @@
 {
    "name": "lith",
    "version": "3.4.0",
-   "description": "Tool to generate HTML from javascript object literals.",
+   "description": "Tool to generate HTML and CSS from javascript object literals.",
    "dependencies": {
       "dale": "3.0.1",
       "teishi": "3.1.4"
@@ -13,7 +13,7 @@
       "type": "Public Domain",
       "url": "http://github.com/fpereiro/lith#license"
    }],
-   "keywords": ["html", "templates"],
+   "keywords": ["html", "css", "markup", "view", "templates"],
    "repository" : {
       "type": "git",
       "url": "http://github.com/fpereiro/lith.git"
