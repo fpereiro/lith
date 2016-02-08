@@ -3,8 +3,8 @@
    "version": "3.4.0",
    "description": "Tool to generate HTML and CSS from javascript object literals.",
    "dependencies": {
-      "dale": "3.0.1",
-      "teishi": "3.1.4"
+      "dale": "3.1.0",
+      "teishi": "3.1.5"
    },
    "main": "lith.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",

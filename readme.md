@@ -100,8 +100,8 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/01e0c514e9615d8d7adb60187cfdc702e06efd66/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/198f2b8b5869bdc696acb02e55c85dfe40578c5f/teishi.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/81569fa1077d7641a216d987a7a95a7251c62b68/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/aa2e4d64f71e1e93745e69ba99f1b71dc3eb8742/teishi.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/lith/403dd057bf78b182a2e0f4bea96174df7104f483/lith.js"></script>
 ```
 
