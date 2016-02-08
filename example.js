@@ -1,5 +1,5 @@
 /*
-lith - v3.3.1
+lith - v3.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -26,7 +26,7 @@ To try this example, run `node example.js` and then open `example.html` in your 
             'vertical-align': 'baseline'
          }],
          ['article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section', {display: 'block'}],
-         ['body', {'line-height': 1}],
+         ['body', {'line-height': '1'}],
          ['ol, ul', {'list-style': 'none'}],
          ['blockquote, q', {quotes: 'none'}],
          ['blockquote:before, blockquote:after, q:before, q:after', {content: "''"}],
@@ -45,26 +45,26 @@ To try this example, run `node example.js` and then open `example.html` in your 
                ['title', 'lith example'],
                ['style', lith.css.g ([
                   cssReset,
-                  ['body', {padding: '10px'}],
+                  ['body', {padding: 10}],
                   ['textarea', {
-                     padding: '5px',
-                     width: '90%',
-                     height: '150px',
+                     padding: 5,
+                     width: .90,
+                     height: 150,
                      'font-family': '"Lucida Console", Monaco, monospace',
                      'line-height': '2em'
                   }],
                   ['div.main', {
-                     width: '50%',
+                     width: .50,
                      float: 'left'
                   }],
                   ['label', {
                      'font-weight': 'bold',
                      display: 'block',
-                     'margin-top, margin-bottom': '10px'
+                     'margin-top, margin-bottom': 10
                   }],
                   ['div#output', {
                      border: 'solid 1px',
-                     padding: '10px'
+                     padding: 10
                   }],
                   ['textarea#outputText', {
                      'background-color': '#DDDDDD'
@@ -123,7 +123,7 @@ To try this example, run `node example.js` and then open `example.html` in your 
          }
 
          document.getElementById ('inputLith').value = JSON.stringify (['a', 'Surrrrrrrrrrrrfin\' bird']);
-         document.getElementById ('inputLitc').value = JSON.stringify (['a', {'font-size': '22px', mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange'}]]);
+         document.getElementById ('inputLitc').value = JSON.stringify (['a', {'font-size': 22, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]]);
 
          document.getElementById ('inputLith').dispatchEvent (new Event ('change', {'bubbles': true}));
 

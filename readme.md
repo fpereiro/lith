@@ -281,7 +281,7 @@ div.links {
 ```
 
 ```javascript
-['div.links', {width: '50%', height: '50%'}]
+['div.links', {width: .5, height: .5}]
 ```
 
 ```css
@@ -291,7 +291,7 @@ a, p {
 ```
 
 ```javascript
-['a, p', {'font-size': '120%'}]
+['a, p', {'font-size': 1.2}]
 ```
 
 ### Multiple properties for a single value
@@ -306,7 +306,7 @@ p {
 ```
 
 ```javascript
-['p', {'padding-top, padding-bottom': '10px', 'padding-left, padding-right': '5px'}]
+['p', {'padding-top, padding-bottom': 10, 'padding-left, padding-right': 5}]
 ```
 
 ### Nested selector
@@ -322,7 +322,7 @@ div.links p {
 ```
 
 ```javascript
-['div.links', {width: '50%'}, ['p', {'font-size': '120%'}]]
+['div.links', {width: .5}, ['p', {'font-size': 1.2}]]
 ```
 
 ### Nested selector with parent referencing
@@ -338,7 +338,7 @@ a:hover {
 ```
 
 ```javascript
-['a', {'font-size': '120%'}, ['&:hover', {color: 'lime'}]]
+['a', {'font-size': 1.2}, ['&:hover', {color: 'lime'}]]
 ```
 
 ### CSS Reset
@@ -354,7 +354,7 @@ Taken from [Eric Meyer's CSS reset] (http://meyerweb.com/eric/tools/css/reset/).
       'vertical-align': 'baseline'
    }],
    ['article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section', {display: 'block'}],
-   ['body', {'line-height': 1}],
+   ['body', {'line-height': '1'}],
    ['ol, ul', {'list-style': 'none'}],
    ['blockquote, q', {quotes: 'none'}],
    ['blockquote:before, blockquote:after, q:before, q:after', {content: "''"}],
@@ -422,6 +422,68 @@ a {font-weight: 'bold'}
 
 ```css
 a {}
+```
+
+If an attribute value is set to an integer, it will be considered as a pixel unit, hence the suffix `px` will be added to it. This feature is added because I found out that most of the time where I used integer units, they were pixels.
+
+```javascript
+['a', {height: 20}]
+```
+
+```css
+a {
+   height: 20px;
+}
+```
+
+In the case where you actually want an actual number, without `px` as the attribute value, you need to stringify it.
+
+```javascript
+['a', {opacity: '1'}]
+```
+
+```css
+a {
+   opacity: 1;
+}
+```
+
+If you use a number that's not an integer, it will be multiplied by 100 and a `%` will be appended.
+
+```javascript
+['a', {width: .5}]
+```
+
+```css
+a {
+   width: 50%;
+}
+```
+
+Because Javascript has no true distinction of floats vs integers, if you want to specify a percentage which is a multiple of `, like `100%` or `200%`, you will need to write it as a string, otherwise it will be interpreted as a pixel unit.
+
+```javascript
+['a', {width: '100%', height: 1.0}]
+```
+
+```css
+a {
+   width: 100%;
+   height: 1px;
+}
+```
+
+Of course, if you think that it is better making a percentage or pixel measure explicit, you can also do:
+
+```javascript
+['a', {width: '50%', 'font-size': '22px'}]
+```
+
+```css
+a {
+   width: 50%;
+   font-size: 22px;
+}
 ```
 
 You can use nested attribute objects to reuse CSS properties - this pattern is usually named *mixin*. Let's see an example:
@@ -494,7 +556,7 @@ The last thing we have to say about litc attributes is that, since litcs are jav
 
 ```javascript
 ['a', {
-   width: (960 * 0.40 / 2) + 'px'
+   width: (960 * 0.40 / 2)
 }]
 ```
 
@@ -523,7 +585,7 @@ Notice that the css above contains two selectors. The first is `'div.links'` and
 To express more succintly this pattern of nested selectors (the actual name is [descendant combinators](http://www.w3.org/TR/css3-selectors/#descendant-combinators)), we can write a litc as the contents of another litc.
 
 ```javascript
-['div.links', {width: '100px'}, ['a', {'font-size': '14px'}]];
+['div.links', {width: 100}, ['a', {'font-size': 14}]];
 ```
 
 This litc will generate the CSS above.
@@ -531,8 +593,8 @@ This litc will generate the CSS above.
 Notice that you can place multiple litcs within the contents of another litc. For example:
 
 ```javascript
-['div.links', {width: '100px'}, [
-   ['a', {'font-size': '14px'}],
+['div.links', {width: 100}, [
+   ['a', {'font-size': 14}],
    ['p', {color: 'red'}]
 ]];
 ```
@@ -572,8 +634,8 @@ div.links a:hover {
 We can generate the same CSS with the following litc:
 
 ```javascript
-['div.links', {width: '100px'}, [
-   ['a', {'font-size': '14px'}, ['&:hover', {color: 'red'}]]
+['div.links', {width: 100}, [
+   ['a', {'font-size': 14}, ['&:hover', {color: 'red'}]]
 ]];
 ```
 
@@ -604,7 +666,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.3.1
+lith - v3.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -638,6 +700,12 @@ This is the most succinct form I found to export an object containing all the pu
 ```javascript
    if (isNode) var lith = exports;
    else        var lith = window.lith = {};
+```
+
+We create an alias to `teishi.t`, the function for finding out the type of an element.
+
+```javascript
+   var type = teishi.t;
 ```
 
 ### Constants
@@ -714,7 +782,7 @@ The function takes an `input` that will be an array of length between 1 and 3 (`
 If the second element of `input` is an object, we consider that `input` has `attributes`.
 
 ```javascript
-      var attr = teishi.t (input [1]) === 'object';
+      var attr = type (input [1]) === 'object';
 ```
 
 We return an array with three elements. The second element will be the `attributes`, and the third one will be the `contents`.
@@ -790,7 +858,7 @@ A lithbag fulfills two conditions:
 
 ```javascript
          ['lithbag', input, lith.k.lithbagElements, 'oneOf'],
-         [teishi.t (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
+         [type (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
 ```
 
 We will pass `true` as the last argument to `teishi.v`. This enables the teishi `mute` flag, which makes `teishi.v` return an error, instead of printing it, in case the input is invalid.
@@ -849,13 +917,13 @@ We validate the remaining conditions of `input`, to determine whether it is a li
 The tag must be a valid tag.
 
 ```javascript
-            ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
+         ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
 ```
 
 The attributes element must be an object or `undefined`.
 
 ```javascript
-            ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
+         ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
 ```
 
 Every attribute key must start with a ASCII letter, underscore or colon, and must follow with zero or more of the following:
@@ -870,25 +938,24 @@ Every attribute key must start with a ASCII letter, underscore or colon, and mus
 This is the *abstruse rule* I talked about earlier in the readme. This arcana was kindly provided [by this article](http://razzed.com/2009/01/30/valid-characters-in-attribute-names-in-htmlxml/). The regex below was taken from the article and modified to add the permitted Unicode characters.
 
 ```javascript
-            [
-               ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
-               dale.keys (input [1]),
-               /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
-               'each', teishi.test.match
-            ]
+         [
+            ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
+            dale.keys (input [1]),
+            /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
+            'each', teishi.test.match
+         ]
 ```
 
 Attribute values can be strings, numbers (integers and floats) or `undefined`.
 
 ```javascript
-            ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined'], 'eachOf'],
+         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined'], 'eachOf'],
 ```
 
 Contents can be any lithbag element: string, integer, float, array and undefined.
 
 ```javascript
-            ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
-         ]}
+         ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
 ```
 
 We set the `mute` flag, to return the error message instead of printing it directly.
@@ -923,8 +990,7 @@ In the same way as `lith.v`, `lith.g` relies on two functions (`lith.generateLit
 We return the results of the corresponding function.
 
 ```javascript
-      if (inputType === 'lith') return lith.generateLith (input);
-      else                      return lith.generateLithbag (input);
+      return lith [inputType === 'lith' ? 'generateLith' : 'generateLithbag'] (input);
    }
 ```
 
@@ -953,7 +1019,8 @@ We use `dale.stop` and pass `false` as the second argument because we want to de
 We now deal with simple values (string, integer and float). Notice we deliberately ignore `undefined`, since we don't want it to produce any output.
 
 ```javascript
-         if (teishi.t (v) === 'string' || teishi.t (v) === 'integer' || teishi.t (v) === 'float') {
+         var typeV = type (v);
+         if (typeV === 'string' || typeV === 'integer' || typeV === 'float') {
 ```
 
 Depending on whether `dontEntityify` is deactivated or not, we entityify the element. We do this because the contents of `<style>` and `<script>` tags should not be entityified, otherwise the inline CSS or javascript would be broken.
@@ -970,7 +1037,7 @@ If the lithbag element is an array, we will do a recursive call to `lith.g`, bec
 We will store the value of this recursive call into a local variable `recursiveOutput`.
 
 ```javascript
-         if (teishi.t (v) === 'array') {
+         if (typeV === 'array') {
             var recursiveOutput = lith.g (v);
 ```
 
@@ -1048,7 +1115,7 @@ We close the opening tag, whether or not we added attributes.
 If the contents of the lith are an array (which means that it must be either a lith or a lithbag), we pass it to a recursive call of `lith.g`.
 
 ```javascript
-      if (teishi.t (input [2]) === 'array') {
+      if (type (input [2]) === 'array') {
          var result = lith.g (input [2]);
 ```
 
@@ -1069,17 +1136,13 @@ Notice that if the tag of the lith we are processing is `<style>` or `<script>`,
 Also, there's no error checking here, since if any of these possible elements is passed to the function, no error is possible.
 
 ```javascript
-      else {
-         output += lith.generateLithbag (input [2], ((input [0] === 'style' || input [0] === 'script') ? true : false));
-      }
+      else output += lith.generateLithbag (input [2], ((input [0] === 'style' || input [0] === 'script') ? true : false));
 ```
 
-We place the closing tag if the element is not a void one. We use teishi.stop to detect this, and pass a 'true' second argument, so that teishi won't report an error if the tag is not found to be void.
+We place the closing tag if the element is not a void one.
 
 ```javascript
-      if (teishi.stop (['', input [0], lith.k.voidTags, 'oneOf', teishi.test.equal], true)) {
-         output += '</' + input [0] + '>';
-      }
+      if (lith.k.voidTags.indexOf (input [0]) === -1) output += '</' + input [0] + '>';
 ```
 
 There's nothing else to do but to return `output` and close the function.
@@ -1110,7 +1173,7 @@ Unlike `lith.v`, `lith.css.v` will hold all the validation logic in itself, inst
 We first try to detect if `input` is a litcbag. A litcbag is an array that contains zero or more litcs or litcbags - in essence, a container of litcs.
 
 ```javascript
-      if (teishi.t (input) === 'array') {
+      if (type (input) === 'array') {
 ```
 
 If the array has length zero, we consider it an empty litcbag, so we return `true`.
@@ -1124,7 +1187,7 @@ If the first element of the `input` is also an array, `input` can only be a litc
 Actually, this could be an invalid element, but we'll leave that check to further recursive calls, instead of doing a deep validation on the spot. In any case, we now return `true`.
 
 ```javascript
-         if (teishi.t (input [0]) === 'array') return true;
+         if (type (input [0]) === 'array') return true;
       }
 ```
 
@@ -1349,10 +1412,28 @@ If the attribute value is `undefined`, we ignore it.
             if (v === undefined) return;
 ```
 
+We note the type of `v`.
+
+```javascript
+            var typeV = type (v);
+```
+
 If the attribute being iterated is an object, we invoke `addAttributes` recursively and return whatever this function call returns. The recursive invocation will handle adding the nested attributes to `output`.
 
 ```javascript
-            if (teishi.t (v) === 'object') return addAttributes (v);
+            if (type (v) === 'object') return addAttributes (v);
+```
+
+If the attribute is an integer, by convention we consider it to be a measure in pixels. Hence, we append `px` to the number. However, we don't do this for a `0` value since [this is optional](https://www.w3.org/TR/CSS2/syndata.html#length-units).
+
+```javascript
+            if (type (v) === 'integer' && v !== 0) v += 'px';
+```
+
+If the attribute is a float (using the very lax definition that a float is something that leaves a remainder after dividing it by one), we consider it to be a percentage measure. Hence, we multiply it by 100 and add a `%` after it.
+
+```javascript
+            if (type (v) === 'float')   v = (v * 100) + '%';
 ```
 
 If the (valid) attribute being iterated is not an object, it must be either a string or a number. This means that this is a terminal value, so we want to add its key and its value to `output`, placing a colon between the key and the value and a trailing semicolon.
