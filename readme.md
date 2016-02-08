@@ -102,7 +102,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/01e0c514e9615d8d7adb60187cfdc702e06efd66/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/198f2b8b5869bdc696acb02e55c85dfe40578c5f/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/45450539fde1c317a0bbf4723b001b1681e1ddab/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/lith/403dd057bf78b182a2e0f4bea96174df7104f483/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -281,7 +281,7 @@ div.links {
 ```
 
 ```javascript
-['div.links', {width: .5, height: .5}]
+['div.links', {width: .50, height: .50}]
 ```
 
 ```css
@@ -291,7 +291,7 @@ a, p {
 ```
 
 ```javascript
-['a, p', {'font-size': 1.2}]
+['a, p', {'font-size': 1.20}]
 ```
 
 ### Multiple properties for a single value
@@ -322,7 +322,7 @@ div.links p {
 ```
 
 ```javascript
-['div.links', {width: .5}, ['p', {'font-size': 1.2}]]
+['div.links', {width: .50}, ['p', {'font-size': 1.20}]]
 ```
 
 ### Nested selector with parent referencing
@@ -338,7 +338,7 @@ a:hover {
 ```
 
 ```javascript
-['a', {'font-size': 1.2}, ['&:hover', {color: 'lime'}]]
+['a', {'font-size': 1.20}, ['&:hover', {color: 'lime'}]]
 ```
 
 ### CSS Reset
@@ -451,7 +451,7 @@ a {
 If you use a number that's not an integer, it will be multiplied by 100 and a `%` will be appended.
 
 ```javascript
-['a', {width: .5}]
+['a', {width: .50}]
 ```
 
 ```css
@@ -1424,7 +1424,9 @@ If the attribute being iterated is an object, we invoke `addAttributes` recursiv
             if (type (v) === 'object') return addAttributes (v);
 ```
 
-If the attribute is an integer, by convention we consider it to be a measure in pixels. Hence, we append `px` to the number. However, we don't do this for a `0` value since [this is optional](https://www.w3.org/TR/CSS2/syndata.html#length-units).
+If the attribute is an integer, by convention we consider it to be a measure in pixels. Hence, we append `px` to the number.
+
+However, we don't do this for a `0` value since [this is optional](https://www.w3.org/TR/CSS2/syndata.html#length-units) - plus, I prefer to omit it, since it looks cleaner.
 
 ```javascript
             if (type (v) === 'integer' && v !== 0) v += 'px';
