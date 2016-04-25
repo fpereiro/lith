@@ -349,7 +349,7 @@ Taken from [Eric Meyer's CSS reset] (http://meyerweb.com/eric/tools/css/reset/).
 [
    ['html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video', {
       'margin, padding, border': 0,
-      'font-size': '100%',
+      'font-size': 1,
       font: 'inherit',
       'vertical-align': 'baseline'
    }],
@@ -448,6 +448,18 @@ a {
 }
 ```
 
+There's a very important exception: if you use the number `1`, it will be interpreted as `100%` instead of as `1px` - because the former is much more prevalent than the latter.
+
+```javascript
+['div', {width: 1}]
+```
+
+```css
+div {
+   width: 100%;
+}
+```
+
 If you use a number that's not an integer, it will be multiplied by 100 and a `%` will be appended.
 
 ```javascript
@@ -460,16 +472,16 @@ a {
 }
 ```
 
-Because Javascript has no true distinction of floats vs integers, if you want to specify a percentage which is a multiple of `, like `100%` or `200%`, you will need to write it as a string, otherwise it will be interpreted as a pixel unit.
+Because Javascript has no true distinction of floats vs integers, if you want to specify a percentage which is a multiple of 100 and larger than `100%`, like `200%` or `300%`, you will need to write it as a string, otherwise it will be interpreted as a pixel unit.
 
 ```javascript
-['a', {width: '100%', height: 1.0}]
+['a', {width: '200%', height: 2.0}]
 ```
 
 ```css
 a {
-   width: 100%;
-   height: 1px;
+   width: 200%;
+   height: 2px;
 }
 ```
 
@@ -666,7 +678,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.4.1
+lith - v3.4.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 

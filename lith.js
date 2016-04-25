@@ -1,5 +1,5 @@
 /*
-lith - v3.4.1
+lith - v3.4.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -227,9 +227,9 @@ Please refer to readme.md to read the annotated source.
          return dale.stop (attributes, false, function (v, k) {
             if (v === undefined) return;
             var typeV = type (v);
-            if (type (v) === 'object') return addAttributes (v);
-            if (type (v) === 'integer' && v !== 0) v += 'px';
-            if (type (v) === 'float')   v = (v * 100) + '%';
+            if (typeV === 'object') return addAttributes (v);
+            if (typeV === 'integer' && v > 1) v += 'px';
+            if (typeV === 'float' || v === 1) v = (v * 100) + '%';
             dale.do (k.split (/,\s*/), function (v2) {
                output += v2 + ':' + v + ';';
             });
