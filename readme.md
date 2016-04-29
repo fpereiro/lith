@@ -100,9 +100,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/81569fa1077d7641a216d987a7a95a7251c62b68/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/aa2e4d64f71e1e93745e69ba99f1b71dc3eb8742/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/52e36810e1bddd26e602b15e372b47c88bd3a250/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/2208a574ac37037575ae0ee4260b1b0c5062eede/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/ac4fb7f946f11a8fdc24db64bb5ff55b26adeba0/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -678,7 +678,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.4.2
+lith - v3.5.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
