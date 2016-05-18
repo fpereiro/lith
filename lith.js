@@ -12,8 +12,8 @@ Please refer to readme.md to read the annotated source.
 
    var isNode = typeof exports === 'object';
 
-   var dale   = isNode ? require ('dale')     : window.dale;
-   var teishi = isNode ? require ('teishi')   : window.teishi;
+   var dale   = isNode ? require ('dale')   : window.dale;
+   var teishi = isNode ? require ('teishi') : window.teishi;
 
    if (isNode) var lith = exports;
    else        var lith = window.lith = {};
@@ -77,9 +77,10 @@ Please refer to readme.md to read the annotated source.
 
       var result = teishi.v ([
          ['lith', input, 'array'],
-         function () {
-            return ['lith length', input.length, {min: 1, max: 3}, teishi.test.range]
-         }
+         function () {return [
+            ['lith length', input.length, {min: 1, max: 3}, teishi.test.range],
+            [input.length > 1 && type (input [1]) !== 'object', ['lith length (without attributes)', input.length, 2, teishi.test.equal]],
+         ]},
       ], true);
 
       if (result !== true) return result;

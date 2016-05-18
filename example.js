@@ -127,6 +127,20 @@ To try this example, run `node example.js` and then open `example.html` in your 
 
          document.getElementById ('inputLith').dispatchEvent (new Event ('change', {'bubbles': true}));
 
+         var dale = window.dale, teishi = window.teishi, i = 0, max = 1000, table = [];
+
+         teishi.l ('Data generation');
+
+         while (i++ < max) {
+            table.push (['td', {class: i}, i]);
+         }
+
+         teishi.l ('Lith generation');
+
+         table = lith.g (table);
+
+         teishi.l ('Done');
+
       }) ();
    }
 

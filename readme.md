@@ -100,9 +100,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/2208a574ac37037575ae0ee4260b1b0c5062eede/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/ac4fb7f946f11a8fdc24db64bb5ff55b26adeba0/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/99a6505ff4680ab46a876428725f2b02ce0fb6a7/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/6360fc6ee346d519202246f586947bafd7960d83/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/b3b1354116c8f03a74085c9310964a536a058c9c/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -678,7 +678,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.5.0
+lith - v3.6.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -688,7 +688,7 @@ Please refer to readme.md to read the annotated source.
 
 ### Setup
 
-We wrap the entire file in a self-executing lambda function. This practice is usually named *the javascript module pattern*. The purpose of it is to wrap our code in a closure and hence avoid making our local variables exceed their scope, as well as avoiding unwanted references to local variables from other scripts.
+We wrap the entire file in a self-executing anonymous function. This practice is commonly named [the javascript module pattern](http://yuiblog.com/blog/2007/06/12/module-pattern/). The purpose of it is to wrap our code in a closure and hence avoid making the local variables we define here to be available outside of this module. A cursory test indicates that local variables exceed the scope of a file in the browser, but not in node.js. Globals exceed their scope despite this pattern - but we won't be using them.
 
 ```javascript
 (function () {
@@ -703,8 +703,8 @@ Since this file must run both in the browser and in node.js, we define a variabl
 We require [dale](http://github.com/fpereiro/dale) and [teishi](http://github.com/fpereiro/teishi).
 
 ```javascript
-   var dale   = isNode ? require ('dale')     : window.dale;
-   var teishi = isNode ? require ('teishi')   : window.teishi;
+   var dale   = isNode ? require ('dale')   : window.dale;
+   var teishi = isNode ? require ('teishi') : window.teishi;
 ```
 
 This is the most succinct form I found to export an object containing all the public members (functions and constants) of a javascript module.
@@ -890,14 +890,15 @@ There's nothing else to do, so we close the function.
    lith.validateLith = function (input) {
 ```
 
-We now check that `input` is an array with length between 1 and 3. We store the result of this check in a local variable `result`.
+We now check that `input` is an array with length between 1 and 3. We store the result of this check in a local variable `result`. We also check that if the `lith` has more than one element besides the `tag`, and no `attributes` object is present, the length of the array is exactly 2.
 
 ```javascript
       var result = teishi.v ([
          ['lith', input, 'array'],
-         function () {
-            return ['lith length', input.length, {min: 1, max: 3}, teishi.test.range]
-         }
+         function () {return [
+            ['lith length', input.length, {min: 1, max: 3}, teishi.test.range],
+            [input.length > 1 && type (input [1]) !== 'object', ['lith length (without attributes)', input.length, 2, teishi.test.equal]],
+         ]},
 ```
 
 Again, we set the `mute` flag to `true`, to receive an error message instead of printing it directly.
