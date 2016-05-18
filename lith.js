@@ -1,5 +1,5 @@
 /*
-lith - v3.5.0
+lith - v3.6.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
