@@ -1,5 +1,5 @@
 /*
-lith - v3.6.0
+lith - v3.6.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -84,7 +84,7 @@ To try this example, run `node example.js` and then open `example.html` in your 
                   ['label', 'Div containing HTML output (will only change if you wrote a valid lith + litc)'],
                   ['LITERAL', '<div id="output"></div>']
                ]],
-               dale.do (['node_modules/dale/dale.js', 'node_modules/teishi/teishi.js', 'lith.js', 'example.js'], function (v) {
+               dale.do (['https://cdn.rawgit.com/fpereiro/dale/6360fc6ee346d519202246f586947bafd7960d83/dale.js', 'https://cdn.rawgit.com/fpereiro/teishi/b3b1354116c8f03a74085c9310964a536a058c9c/teishi.js', 'lith.js', 'example.js'], function (v) {
                   return ['script', {src: v}]
                })
             ]]

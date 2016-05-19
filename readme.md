@@ -102,7 +102,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/6360fc6ee346d519202246f586947bafd7960d83/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/b3b1354116c8f03a74085c9310964a536a058c9c/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/7c6a22e1268f1e45669e6d11978d776054d3a074/lith.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -678,7 +678,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.6.0
+lith - v3.6.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
