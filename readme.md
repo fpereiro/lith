@@ -106,7 +106,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/79a2fc1a49d7ae59a9addd612a775a7d11020eed/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/4730d02e60bc5b59c1d4660bcdbc4159e5ed6875/teishi.js"></script>
-<script src=""></script>
+<script src="https://cdn.rawgit.com/fpereiro/lith/1d93a5f19ceb4796750f1901c43659ede060d99e/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -715,7 +715,7 @@ If the input is invalid, lith will print an error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 250 lines long.
+The complete source code is contained in `lith.js`. It is about 260 lines long.
 
 Below is the annotated source.
 
