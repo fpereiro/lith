@@ -1,10 +1,10 @@
 {
    "name": "lith",
-   "version": "3.6.1",
-   "description": "Tool to generate HTML and CSS from javascript object literals.",
+   "version": "3.7.0",
+   "description": "Tool for generating HTML and CSS from javascript object literals.",
    "dependencies": {
-      "dale": "3.4.0",
-      "teishi": "3.4.0"
+      "dale": "3.5.0",
+      "teishi": "3.5.0"
    },
    "main": "lith.js",
    "author": "Federico Pereiro <fpereiro@gmail.com>",

@@ -7,6 +7,10 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 - Writing HTML by hand.
 - Using a template system.
 
+## Current status of the project
+
+The current version of teishi, v3.7.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+
 ## Why lith instead of a template system?
 
 I find two problems with existing template systems:
@@ -100,9 +104,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/6360fc6ee346d519202246f586947bafd7960d83/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/b3b1354116c8f03a74085c9310964a536a058c9c/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/b921baba8bfb7410588c5f1280e5dad4df6f2e5a/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/79a2fc1a49d7ae59a9addd612a775a7d11020eed/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/4730d02e60bc5b59c1d4660bcdbc4159e5ed6875/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -119,7 +123,7 @@ Correspondingly, each lith is an array made of three elements:
 
 1. Tag: a string, containing a valid HTML tag. For example, `'br'`.
 2. Attributes:
-  - Case 1: An object, where each key in the object matches a string, a number or `undefined`. The keys are already strings (since that's how javascript represents object literal keys) and are expected to be so. There is an abstruse rule for validating attribute names (keys), explained in the source code, but you don't need to know it. And attribute values must be either strings, numbers or `undefined`. If an attribute value is `undefined`, the entire attribute will be ignored.
+  - Case 1: An object, where each key in the object matches a string, a number or `undefined`. The keys are already strings (since that's how javascript represents object literal keys) and are expected to be so. There is an abstruse rule for validating attribute names (keys), explained in the source code, but you don't need to know it. And attribute values must be either strings, numbers or a falsy value (`undefined`, `null` and `false`). If an attribute value is `undefined`, `null` or `false`, , the entire attribute will be ignored.
   - Case 2: `undefined`.
 3. Contents:
   - Case 1: a lith.
@@ -408,7 +412,7 @@ If the attributes object is `undefined`, we consider the litc to have zero prope
 a {}
 ```
 
-If an attribute value is set to `undefined`, the attribute will be ignored. For example:
+If an attribute value is set to `undefined`, `null` or `false`, the attribute will be ignored. For example:
 
 ```javascript
 ['a', {'font-weight': isHeader ? 'bold' : undefined}]
@@ -655,6 +659,45 @@ Notice how `&` is replaced by `div.links a`, which is the combined selector of t
 
 The ampersand can be a prefix, a suffix or even be in the middle of a selector. In every case, it will be replaced by the selector of its ancestors.
 
+Multiple CSS selectors will be properly nested. For example, if you want to write:
+
+```css
+h2 span, h3 span {
+   color: green;
+}
+```
+
+You can do write it with the following litc:
+
+```javascript
+['h2, h3', ['span', {color: 'green'}]]
+```
+
+This also works if you use commas in the nested selector:
+
+```css
+div h2, div h3 {
+   color: green;
+}
+```
+
+```javascript
+['div', ['h2, h3', {color: 'green'}]]
+```
+
+You can also use the ampersand and nest multiple selectors as deeply as you want.
+
+```css
+div h2:hover, div h3:hover {
+   color: green;
+}
+```
+
+```javascript
+['div', ['h2, h3', ['&:hover', {color: 'green'}]]]
+```
+
+
 ### Litc usage
 
 litcs are generated using two core functions:
@@ -678,7 +721,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.6.1
+lith - v3.7.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -959,10 +1002,10 @@ This is the *abstruse rule* I talked about earlier in the readme. This arcana wa
          ]
 ```
 
-Attribute values can be strings, numbers (integers and floats) or `undefined`.
+Attribute values can be strings, numbers (integers and floats). We also accept `undefined`, `null` and `false` as falsy values that invalidate the property, so we will also accept `undefined`, `null` or `boolean`.
 
 ```javascript
-         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined'], 'eachOf'],
+         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
 ```
 
 Contents can be any lithbag element: string, integer, float, array and undefined.
@@ -1110,12 +1153,12 @@ We iterate the attributes of the lith.
       dale.do (input [1], function (v, k) {
 ```
 
-If the attribute value is not `undefined`, we concatenate the attribute key and the attribute value into `output`, putting a `=` in the middle.
+If the attribute value is not falsy, we concatenate the attribute key and the attribute value into `output`, putting a `=` in the middle.
 
 Mind that we entityify both the key and the value. Also mind that we use double quotes for enclosing the value. Finally, notice that we coerce `k` and `v` into strings before passing them to `lith.entityify`.
 
 ```javascript
-         if (v !== undefined) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v !== undefined && v !== null && v !== false) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
       });
 ```
 
@@ -1260,13 +1303,13 @@ We close the call and the function.
 
 We ensure that:
 - `attributes` is either `undefined` or an object.
-- The elements within `attributes` are strings, integers, floats, objects or `undefined`.
+- The elements within `attributes` are strings, integers, floats, objects or falsy values (`undefined`, `null` and `false`).
 
 We then close the call and the function.
 
 ```javascript
          ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined'], 'eachOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf'],
       ]);
    }
 ```
@@ -1354,6 +1397,32 @@ We apply `lith.split` to `input` so that it will have three elements.
       input = lith.split (input);
 ```
 
+We now will generate the proper selector. To do this, we first split the selector by a comma plus whitespace. If there's no commas in the selector, this will be irrelevant, but if they are, doing this will allow us to write the following CSS:
+
+```css
+h2 span, h3 span {
+   color: green;
+}
+```
+
+With the following litc:
+
+```javascript
+['h2, h3', ['span', {color: 'green'}]]
+```
+
+We will set the `selector` to the result of this iteration on the parts of the selector.
+
+```javascript
+      selector = dale.do (selector.split (/,\s*/), function (v) {
+```
+
+We will also split `input [0]` by a comma plus whitespace, the selector of the current litc and iterate them.
+
+```javascript
+         return dale.do (input [0].split (/,\s*/), function (v2) {
+```
+
 If there is an ampersand in the selector of the current litc, we make `selector` equal to the current litc, and replacing the ampersand with the original selector. For example:
 
 `original selector: 'a'`
@@ -1363,7 +1432,7 @@ If there is an ampersand in the selector of the current litc, we make `selector`
 `new value of selector: 'a:hover'`
 
 ```javascript
-      if (input [0].match (/&/)) selector = input [0].replace ('&', selector)
+            if (v2.match (/&/)) return v2.replace ('&', v);
 ```
 
 If there's no ampersand in the selector of the current litc, we make `selector` equal to a string that concatenates the old selector and the new one, separated by a space.
@@ -1383,7 +1452,14 @@ If `selector` is an empty string, the new selector will be concatenated without 
 `new value of selector: 'a'`.
 
 ```javascript
-      else                       selector += (selector.length === 0 ? '' : ' ') + input [0];
+            else                return v + (v.length === 0 ? '' : ' ') + v2;
+```
+
+We join the results of the inner loop and those of the outer loop to obtain the final selector.
+
+```javascript
+         }).join (', ');
+      }).join (', ');
 ```
 
 We concatenate to `output` the new selector plus an opening curly brace (inside which we'll place the attributes).
@@ -1419,10 +1495,10 @@ We are going to iterate `attributes`. If the inner function returns `false`, we 
          return dale.stop (attributes, false, function (v, k) {
 ```
 
-If the attribute value is `undefined`, we ignore it.
+If the attribute value is falsy, we ignore it.
 
 ```javascript
-            if (v === undefined) return;
+            if (v === undefined || v === null || v === false) return;
 ```
 
 We note the type of `v`.

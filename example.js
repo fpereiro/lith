@@ -1,5 +1,5 @@
 /*
-lith - v3.6.1
+lith - v3.7.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -122,8 +122,8 @@ To try this example, run `node example.js` and then open `example.html` in your 
             document.getElementById ('inputLitc').style ['background-color'] = 'white';
          }
 
-         document.getElementById ('inputLith').value = JSON.stringify (['a', 'Surrrrrrrrrrrrfin\' bird']);
-         document.getElementById ('inputLitc').value = JSON.stringify (['a', {'font-size': 22, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]]);
+         document.getElementById ('inputLith').value = JSON.stringify ([['h2', ['span', 'The word:']], ['a', {id: 'bird', class: null}, 'Surrrrrrrrrrrrfin\' bird']]);
+         document.getElementById ('inputLitc').value = JSON.stringify ([['a', {'font-size': 22, 'font-family': false, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]], ['h2, h3', ['span, strong', {display: 'block', margin: 20, 'font-weight': 'bold'}]]]);
 
          document.getElementById ('inputLith').dispatchEvent (new Event ('change', {'bubbles': true}));
 

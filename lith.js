@@ -1,5 +1,5 @@
 /*
-lith - v3.6.1
+lith - v3.7.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -96,7 +96,7 @@ Please refer to readme.md to read the annotated source.
             /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
             'each', teishi.test.match
          ],
-         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined'], 'eachOf'],
+         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
          ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
       ]}, true);
    }
@@ -143,7 +143,7 @@ Please refer to readme.md to read the annotated source.
       var output = '<' + input [0];
 
       dale.do (input [1], function (v, k) {
-         if (v !== undefined) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v !== undefined && v !== null && v !== false) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
       });
 
       output += '>';
@@ -191,7 +191,7 @@ Please refer to readme.md to read the annotated source.
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
          ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined'], 'eachOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf'],
       ]);
    }
 
@@ -218,15 +218,19 @@ Please refer to readme.md to read the annotated source.
 
       input = lith.split (input);
 
-      if (input [0].match (/&/)) selector = input [0].replace ('&', selector);
-      else                       selector += (selector.length === 0 ? '' : ' ') + input [0];
+      selector = dale.do (selector.split (/,\s*/), function (v) {
+         return dale.do (input [0].split (/,\s*/), function (v2) {
+            if (v2.match (/&/)) return v2.replace ('&', v);
+            else                return v + (v.length === 0 ? '' : ' ') + v2;
+         }).join (', ');
+      }).join (', ');
 
       output += selector + '{';
 
       var addAttributes = function (attributes) {
          if (lith.css.vAttributes (attributes) === false) return false;
          return dale.stop (attributes, false, function (v, k) {
-            if (v === undefined) return;
+            if (v === undefined || v === null || v === false) return;
             var typeV = type (v);
             if (typeV === 'object') return addAttributes (v);
             if (typeV === 'integer' && v > 1) v += 'px';
