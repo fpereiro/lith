@@ -1,5 +1,5 @@
 /*
-lith - v3.7.0
+lith - v4.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -48,112 +48,101 @@ Please refer to readme.md to read the annotated source.
          .replace (/`/g, '&#96;');
    }
 
-   lith.split = function (input) {
-      var attr = type (input [1]) === 'object';
-      return [input [0], attr ? input [1] : undefined, attr ? input [2] : input [1]];
-   }
-
    // *** LITH VALIDATION ***
 
    lith.v = function (input) {
 
-      var validateLith = lith.validateLith (input);
-      if (validateLith === true)    return 'lith';
+      var inputType = type (input);
 
-      var validateLithbag = lith.validateLithbag (input);
-      if (validateLithbag === true) return 'lithbag';
+      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) !== -1) {
 
-      return teishi.l ('lith.v', 'Input to lith.g must be either a lith or a lithbag, but it is neither.', 'It is not a lith because', validateLith + '.', 'It is not a lithbag because', validateLithbag + '.');
-   }
+         var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+         var contents   = input [attributes ? 2 : 1];
 
-   lith.validateLithbag = function (input) {
-      return teishi.v ([
-         ['lithbag', input, lith.k.lithbagElements, 'oneOf'],
-         [type (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
-      ], true);
-   }
-
-   lith.validateLith = function (input) {
-
-      var result = teishi.v ([
-         ['lith', input, 'array'],
-         function () {return [
+         return teishi.v ([
             ['lith length', input.length, {min: 1, max: 3}, teishi.test.range],
-            [input.length > 1 && type (input [1]) !== 'object', ['lith length (without attributes)', input.length, 2, teishi.test.equal]],
-         ]},
-      ], true);
+            [attributes === undefined, ['length of lith without attributes', input.length, {max: 2}, teishi.test.range]],
+            [
+               ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
+               dale.keys (attributes),
+               /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
+               'each', teishi.test.match
+            ],
+            ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
+            ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
+         ]) ? 'Lith' : false;
+      }
 
-      if (result !== true) return result;
-
-      input = lith.split (input);
-
-      return teishi.v (function () {return [
-         ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
-         ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
-         [
-            ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
-            dale.keys (input [1]),
-            /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
-            'each', teishi.test.match
-         ],
-         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
-         ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
-      ]}, true);
+      return teishi.v ([
+         ['lithbag', inputType, lith.k.lithbagElements, 'oneOf', teishi.test.equal],
+         [inputType === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
+      ]) ? 'Lithbag' : false;
    }
 
    // *** LITH GENERATION ***
 
-   lith.g = function (input) {
+   lith.g = function (input, prod) {
+
+      if (prod || lith.prod) {
+         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) !== -1) {
+            return lith.generateLith (input, true);
+         }
+         return lith.generateLithbag (input, false, true);
+      }
 
       var inputType = lith.v (input);
 
-      if (inputType === false) return false;
-
-      return lith [inputType === 'lith' ? 'generateLith' : 'generateLithbag'] (input);
+      return inputType ? lith ['generate' + inputType] (input) : false;
    }
 
-   lith.generateLithbag = function (lithbag, dontEntityify) {
+   lith.generateLithbag = function (lithbag, dontEntityify, prod) {
 
       var output = '';
 
       if (dale.stop (lithbag, false, function (v) {
 
-         var typeV = type (v);
-         if (typeV === 'string' || typeV === 'integer' || typeV === 'float') {
-            output += (dontEntityify ? v : lith.entityify (v + ''));
-         }
+         if (v === undefined) return;
 
-         if (typeV === 'array') {
-            var recursiveOutput = lith.g (v);
+         var typeV = type (v);
+
+         if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + ''));
+
+         if (prod) output += lith.g (v, prod);
+         else {
+            var recursiveOutput = lith.g (v, prod);
             if (recursiveOutput === false) return false;
             else output += recursiveOutput;
          }
 
       }) === false) return false;
 
-      else return output;
+      return output;
    }
 
-   lith.generateLith = function (input) {
+   lith.generateLith = function (input, prod) {
 
-      input = lith.split (input);
+      var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+      var contents   = input [attributes ? 2 : 1];
 
-      if (input [0] === 'LITERAL') return input [2];
+      if (input [0] === 'LITERAL') return contents;
 
       var output = '<' + input [0];
 
-      dale.do (input [1], function (v, k) {
-         if (v !== undefined && v !== null && v !== false) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+      dale.do (attributes, function (v, k) {
+         if (v || v === 0) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
       });
 
       output += '>';
 
-      if (type (input [2]) === 'array') {
-         var result = lith.g (input [2]);
-         if (result === false) return false;
-         output += result;
+      if (type (contents) === 'array') {
+         if (prod) output += lith.g (contents, prod);
+         else {
+            var recursiveOutput = lith.g (contents);
+            if (recursiveOutput === false) return false;
+            output += recursiveOutput;
+         }
       }
-      else output += lith.generateLithbag (input [2], ((input [0] === 'style' || input [0] === 'script') ? true : false));
+      else output += lith.generateLithbag (contents, ((input [0] === 'style' || input [0] === 'script') ? true : false), prod);
 
       if (lith.k.voidTags.indexOf (input [0]) === -1) output += '</' + input [0] + '>';
 
@@ -168,29 +157,24 @@ Please refer to readme.md to read the annotated source.
 
    lith.css.v = function (input) {
 
-      if (type (input) === 'array') {
-         if (input.length === 0 || type (input [0] === 'array')) return true;
-      }
+      if (teishi.stop (['litc or litcbag', input, 'array'])) return false;
 
-      if (teishi.stop ([
-         ['litc', input, 'array'],
-         function () {
-            return ['litc length', input.length, {min: 1, max: 3}, teishi.test.range]
-         }
-      ])) return false;
+      if (input.length === 0 || type (input [0]) === 'array') return true;
 
-      input = lith.split (input);
+      var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+      var contents   = input [attributes ? 2 : 1];
 
       return teishi.v ([
+         ['litc length', input.length, {min: 1, max: 3}, teishi.test.range],
+         [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
          ['litc selector', input [0], 'string'],
-         lith.css.vAttributes (input [1]),
-         ['litc contents', input [2], ['undefined', 'array'], 'oneOf']
+         lith.css.vAttributes (attributes),
+         ['litc contents', contents, ['undefined', 'array'], 'oneOf']
       ]);
    }
 
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
-         ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
          ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf'],
       ]);
    }
@@ -207,16 +191,17 @@ Please refer to readme.md to read the annotated source.
 
       if (type (input [0]) === 'array') {
          if (dale.stop (input, false, function (v, k) {
-            var result = lith.css.g (v, selector);
-            if (result === false) return false;
-            output += result;
+            var recursiveOutput = lith.css.g (v, selector);
+            if (recursiveOutput === false) return false;
+            output += recursiveOutput;
          }) === false) return false;
          else return output;
       }
 
       if (selector === undefined) selector = '';
 
-      input = lith.split (input);
+      var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+      var contents   = input [attributes ? 2 : 1];
 
       selector = dale.do (selector.split (/,\s*/), function (v) {
          return dale.do (input [0].split (/,\s*/), function (v2) {
@@ -230,7 +215,7 @@ Please refer to readme.md to read the annotated source.
       var addAttributes = function (attributes) {
          if (lith.css.vAttributes (attributes) === false) return false;
          return dale.stop (attributes, false, function (v, k) {
-            if (v === undefined || v === null || v === false) return;
+            if (! v && v !== 0) return;
             var typeV = type (v);
             if (typeV === 'object') return addAttributes (v);
             if (typeV === 'integer' && v > 1) v += 'px';
@@ -241,12 +226,12 @@ Please refer to readme.md to read the annotated source.
          });
       }
 
-      if (addAttributes (input [1]) === false) return false;
+      if (addAttributes (attributes) === false) return false;
 
       output += '}';
 
-      if (input [2]) {
-         var recursiveOutput = lith.css.g (input [2], selector);
+      if (contents) {
+         var recursiveOutput = lith.css.g (contents, selector);
          if (recursiveOutput === false) return false;
          else output += recursiveOutput;
       }

@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v3.7.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v4.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -74,16 +74,11 @@ lith.g (['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']]
 ```
 
 ```javascript
-lith.g (['table', [
-   ['tr', {id: 'row1'}, [
-      ['td', 'A1'],
-      ['td', 'B1']
-   ]],
-   ['tr', {id: 'row2'}, [
-      ['td', 'A2'],
-      ['td', 'B2']
-   ]]
-]]);
+lith.g (['table', [['A1', 'B1'], ['A2', 'B2']].map (function (v, k) {
+   return ['tr', {id: 'row' + (k + 1)}, v.map (function (v2) {
+      return ['td', v2];
+   })];
+})]);
 ```
 
 ## Installation
@@ -104,14 +99,14 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/79a2fc1a49d7ae59a9addd612a775a7d11020eed/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/4730d02e60bc5b59c1d4660bcdbc4159e5ed6875/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/1d93a5f19ceb4796750f1901c43659ede060d99e/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/1bb6973037dd409f667231d51c55845672d19821/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/984e9295f7ef31cd04576b8f9ac015e1953aabc1/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
 
-## Structure of a lith
+## Liths
 
 An HTML element has three parts:
 
@@ -119,11 +114,13 @@ An HTML element has three parts:
 2. Attributes
 3. Contents
 
-Correspondingly, each lith is an array made of three elements:
+The only required part is the tag, since both attributes and contents are optional.
+
+Correspondingly, each lith is an array made of one to three elements:
 
 1. Tag: a string, containing a valid HTML tag. For example, `'br'`.
 2. Attributes:
-  - Case 1: An object, where each key in the object matches a string, a number or `undefined`. The keys are already strings (since that's how javascript represents object literal keys) and are expected to be so. There is an abstruse rule for validating attribute names (keys), explained in the source code, but you don't need to know it. And attribute values must be either strings, numbers or a falsy value (`undefined`, `null` and `false`). If an attribute value is `undefined`, `null` or `false`, , the entire attribute will be ignored.
+  - Case 1: An object, where each key in the object matches a string, a number or `undefined`. The keys are already strings (since that's how javascript represents object literal keys) and are expected to be so. There is an abstruse rule for validating attribute names (keys), explained in the source code, but you don't need to know it. And attribute values must be either strings, numbers or a falsy value (`undefined`, `null` and `false`). If an attribute value is `undefined`, `null`, `false` or an empty string, the entire attribute will be ignored.
   - Case 2: `undefined`.
 3. Contents:
   - Case 1: a lith.
@@ -134,11 +131,11 @@ A lithbag is an array containing zero or more of the following elements:
 - A string.
 - A number.
 - `undefined`.
-- An array which is either a lithbag or a lith.
+- An array containing zero or more of 1) the above elements; 2) liths, 3) lithbags.
 
-Notice that since the contents of a lith can be any lithbag element, they can be `undefined`. This means that the only required element in a lith is the tag.
+However, and in contrast to previous (< 4.0.0) versions of lith, a lithbag can never be an array with its first element being a valid HTML tag. The reason for this is that 1) this allows very fast distinction of liths vs lithbags when running in `prod mode`; and 2) this limitation is seldom a real one and can be easily bypassed.
 
-This recursive definition of a lithbag has the following properties:
+The recursive definition of a lithbag has the following properties:
 
 1. The most obvious one: you can place an array of liths as the content of a given lith. This is necessary when an element has many children at the same level. For example:
 
@@ -165,8 +162,16 @@ This recursive definition of a lithbag has the following properties:
 3. When generating liths with your code (instead of writing them by hand), you don't have to worry about the level of nestedness of liths. For example, the following two liths generate the same code:
 
    ```javascript
-   [['p'], ['div']]
-   [['p'], [['div']]]
+   [
+      ['p'], ['div']
+   ]
+   ```
+   ```javascript
+   [
+      ['p'], [
+         ['div']
+      ]
+   ]
    ```
    ```html
    <p></p><div></div>
@@ -218,9 +223,9 @@ This recursive definition of a lithbag has the following properties:
    </table>
    ```
 
-## HTML escapes
+### HTML escapes
 
-lith will escape all special characters (`'&'`, `<`, `>, `"`, `'` and `\``) when generating HTML. However, the contents of `style` and `script` tags will not be escaped, since those special characters are expected to remain unescaped in both CSS and JS.
+lith will escape all special characters (`'&'`, `<`, `>, `"`, `'` and `` ` ``) when generating HTML. However, the contents of `style` and `script` tags will not be escaped, since those special characters are expected to remain unescaped in both CSS and JS.
 
 If you need to insert a chunk of literal HTML into a lith, you can do it by using the `LITERAL` pseudo-tag:
 
@@ -240,21 +245,21 @@ This will generate the following HTML:
 </div>
 ```
 
-## Non-ASCII characters
+### Non-ASCII characters
 
 If you have non-ascii characters in a lith, and you're generating code in the browser, as long as the source file is invoked with the proper encoding, you will have no problem. For example, if scripts.js is saved and transmitted using utf-8, you should include it as:
 
 ```html
-<script src="scripts.js" charset="UTF-8"></script>
+<script src="scripts.js" charset="utf-8"></script>
 ```
 
 By the way, if you're generating the HTML with lith, you can do the same with:
 
 ```javascript
-['script', {src: 'scripts.js', charset: 'UTF-8'}]
+['script', {src: 'scripts.js', charset: 'utf-8'}]
 ```
 
-## Usage
+### Usage
 
 lith is made of two core functions:
 
@@ -269,7 +274,22 @@ If the input to lith is invalid, `false` is returned. Otherwise, you get a strin
 
 If the input is invalid, lith will print an error through teishi.
 
-## litc
+### `prod mode`
+
+Performance wise, `lith.g` spends about 60-80% of its processing time in validating its input. While validation is essential to shorten the debug cycle when developing, in certain cases you might want to turn it off to improve performance.
+
+The cost of turning off validation is that if there's an invalid lith somewhere, an error will be thrown.
+
+The performance gains of `prod mode` will be only noticeable if you're generating thousands of tags.
+
+You can use `prod mode` in two ways:
+
+- Locally, by passing a `true` second parameter to an invocation of `lith.g`.
+- Globally, by setting `lith.prod` to `true`. This will affect every subsequent invocation of `lith.g`.
+
+Notice that `prod mode` only affects `lith.g` and not `lith.css.g`. The reasons are two: 1) validation of litcs is less expensive than validation of liths; and 2) it is unlikely that the amount of CSS that you need to generate will be enough to create a performance issue. If, however, you have an use case for this, please [open an issue](https://github.com/fpereiro/lith/issues) and I will consider it.
+
+## litcs
 
 If liths generate HTML, what generates CSS? Well, a **litc**! It's unpronounceable, but I ran out of names.
 
@@ -366,7 +386,7 @@ Taken from [Eric Meyer's CSS reset] (http://meyerweb.com/eric/tools/css/reset/).
    ['table', {
       'border-collapse': 'collapse',
       'border-spacing': 0
-   }],
+   }]
 ];
 ```
 
@@ -379,6 +399,8 @@ A litc is an array containing three elements:
 3. Contents
 
 The selector is merely a string and it is required. The other two elements are optional.
+
+### litc attributes
 
 The attributes element is either `undefined` or an object where every key is a CSS attribute and its values are either a number, a string or undefined. For example:
 
@@ -412,7 +434,7 @@ If the attributes object is `undefined`, we consider the litc to have zero prope
 a {}
 ```
 
-If an attribute value is set to `undefined`, `null` or `false`, the attribute will be ignored. For example:
+If an attribute value is set to `undefined`, `null`, `false` or an empty string, the attribute will be ignored. For example:
 
 ```javascript
 ['a', {'font-weight': isHeader ? 'bold' : undefined}]
@@ -421,7 +443,7 @@ If an attribute value is set to `undefined`, `null` or `false`, the attribute wi
 will yield these two CSS rules, depending on whether `isHeader` is truthy or not:
 
 ```css
-a {font-weight: 'bold'}
+a {font-weight: bold}
 ```
 
 ```css
@@ -582,6 +604,8 @@ a {
 }
 ```
 
+### litc contents
+
 The contents of a litc can be either a litc or a litcbag. A litcbag is an array that contains litcs or litcbags. Notice that a litcbag is almost like a lithbag, only simpler, because it cannot contain simple elements (such as strings or numbers).
 
 Unlike HTML, CSS has no nested elements. However, litcs can be nested. The reason for this is to provide a shorthand for nesting CSS selectors. Let's see an example:
@@ -697,7 +721,6 @@ div h2:hover, div h3:hover {
 ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]
 ```
 
-
 ### Litc usage
 
 litcs are generated using two core functions:
@@ -715,13 +738,13 @@ If the input is invalid, lith will print an error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 260 lines long.
+The complete source code is contained in `lith.js`. It is about 250 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-lith - v3.7.0
+lith - v4.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -826,161 +849,54 @@ This function was originally taken from [Douglas Crockford's `entityify`](http:/
    }
 ```
 
-`lith.split` is a helper function that takes a possible lith or litc and splits it into a `tag`, `attributes` and `contents`. We need a special function to do this because both `attributes` and `contents` are optional, and we want to remove this kind of conditional logic from the validation and generation functions.
-
-The function takes an `input` that will be an array of length between 1 and 3 (`input`). All calls to these function will be done with an `input` that has been confirmed to be valid, so this function will not have any validation. As such, if you every use this function directly, be sure to validate its input first.
-
-```javascript
-   lith.split = function (input) {
-```
-
-If the second element of `input` is an object, we consider that `input` has `attributes`.
-
-```javascript
-      var attr = type (input [1]) === 'object';
-```
-
-We return an array with three elements. The second element will be the `attributes`, and the third one will be the `contents`.
-
-```javascript
-      return [input [0], attr ? input [1] : undefined, attr ? input [2] : input [1]];
-   }
-```
-
 ### Lith validation
 
 We will now proceed to handle the validation of liths.
 
-`lith.v` is the main validation function for liths. It takes an `input`, presumably a lith.
+`lith.v` is the main validation function for liths. It takes an `input`, presumably a lith. This function will return `Lith` if it found a lith, `Lithbag` if it found a lithbag, and `false` if the input is neither.
 
 ```javascript
    lith.v = function (input) {
 ```
 
-First, we try to validate the input as a lith. We store the result of this validation (which can be either `true` or an error message) in the local variable `validateLith`.
-
-Notice that we perform this validation with another function, `lith.validateLith`, which we'll define below.
+We first note the type of the input and store it at `inputType`.
 
 ```javascript
-      var validateLith = lith.validateLith (input);
+      var inputType = type (input);
 ```
 
-If `validateLith` is `true`, we return the string `'lith'`.
+If `input` is an array and its first element is a string which also happens to be a valid HTML tag, we will consider `input` to be a lith! In previous versions of lith, you could write lithbags that started with a valid HTML tag, but it was seldom useful. By explicitly prohibiting it, we can very quickly determine whether `input` is a lith or a lithbag. This also will help to implement a fast `prod mode` when we define `lith.g` later.
 
 ```javascript
-      if (validateLith === true)    return 'lith';
+      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) !== -1) {
 ```
 
-If we're here, `input` can be either a lithbag or invalid. We invoke `lith.validateLithbag` (another function, defined below) and store the result.
-
-If the result is `true`, we return `'lithbag'`.
+We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `lith`, depending on whether we found `attributes` or not.
 
 ```javascript
-      var validateLithbag = lith.validateLithbag (input);
-      if (validateLithbag === true) return 'lithbag';
+         var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+         var contents   = input [attributes ? 2 : 1];
 ```
 
-The reason for the order in which we validated `input` as a lith and then a lithbag is because *we want to give priority to considering `input` as a lith in ambiguous cases.*
-
-For example, `['p']` can be considered as either `'<p></p>'` (lith) or as `'p'` (lithbag). By checking if something can be a lith first, and then a lithbag, we favor the first interpretation.
-
-If we reach this point of the function, it's because `input` is neither a lith nor a lithbag. We construct an error message and print it.
-
-Notice that we use `validateLith` and `validateLithbag` to construct the error, since these variables hold each individual error message. This is the reason for which we stored these results in variables.
-
-Also notice that the function will return `false`, since `teishi.l` always returns `false` after printing a message.
+We start validating the lith in earnest.
 
 ```javascript
-      return teishi.l ('lith.v', 'Input to lith.g must be either a lith or a lithbag, but it is neither.', 'It is not a lith because', validateLith + '.', 'It is not a lithbag because', validateLithbag + '.');
-   }
+         return teishi.v ([
 ```
 
-`lith.validateLithbag` takes an `input`. It returns `true` if the `input` is a lithbag and `false` otherwise.
+A lith has a length of 1 to 3 elements.
 
 ```javascript
-   lith.validateLithbag = function (input) {
-```
-
-The function consists of a single call to [`teishi.v`](https://github.com/fpereiro/teishi#teishiv). We return the value of this call.
-
-```javascript
-      return teishi.v ([
-```
-
-A lithbag fulfills two conditions:
-- It must have a type that's one of the lithbag types: `string`, `integer`, `float`, `array` and `undefined`.
-- If it has containing elements (because it is a non-empty array), each of its elements should also have a valid lithbag type.
-
-```javascript
-         ['lithbag', input, lith.k.lithbagElements, 'oneOf'],
-         [type (input) === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
-```
-
-We will pass `true` as the last argument to `teishi.v`. This enables the teishi `mute` flag, which makes `teishi.v` return an error, instead of printing it, in case the input is invalid.
-
-The reason for which we do this is we don't want the error to be printed automatically, but rather be included in a more comprehensive error message. By setting `mute` to `true`, we allow the calling function to report the error.
-
-There's nothing else to do, so we close the function.
-
-```javascript
-      ], true);
-   }
-```
-
-`lith.validateLithbag` takes an `input`. It returns `true` if the `input` is a lith and `false` otherwise.
-
-```javascript
-   lith.validateLith = function (input) {
-```
-
-We now check that `input` is an array with length between 1 and 3. We store the result of this check in a local variable `result`. We also check that if the `lith` has more than one element besides the `tag`, and no `attributes` object is present, the length of the array is exactly 2.
-
-```javascript
-      var result = teishi.v ([
-         ['lith', input, 'array'],
-         function () {return [
             ['lith length', input.length, {min: 1, max: 3}, teishi.test.range],
-            [input.length > 1 && type (input [1]) !== 'object', ['lith length (without attributes)', input.length, 2, teishi.test.equal]],
-         ]},
 ```
 
-Again, we set the `mute` flag to `true`, to receive an error message instead of printing it directly.
+If, however, the lith has no attributes, its length can be at most 2, since it will only have a tag and contents.
 
 ```javascript
-      ], true);
+            [attributes === undefined, ['length of lith without attributes', input.length, {max: 2}, teishi.test.range]],
 ```
 
-If `input` is not an array with the proper length, we return `result`, which will hold the corresponding error.
-
-```javascript
-      if (result !== true) return result;
-```
-
-We pass `input` to `lith.split` and we replace the old value of `input` with the result of this call. Notice that `input` has had enough validation at this point, so we can safely pass it to `lith.split`.
-
-After this, input will always be an array with three elements, a tag, attributes and contents.
-
-```javascript
-      input = lith.split (input);
-```
-
-We validate the remaining conditions of `input`, to determine whether it is a lith. For this, we invoke `teishi.l` and we return its result.
-
-```javascript
-      return teishi.v (function () {return [
-```
-
-The tag must be a valid tag.
-
-```javascript
-         ['lith tag', input [0], lith.k.tags, 'oneOf', teishi.test.equal],
-```
-
-The attributes element must be an object or `undefined`.
-
-```javascript
-         ['lith attributes', input [1], ['object', 'undefined'], 'oneOf'],
-```
+We already know that `attributes` is either undefined or an object, because we ensured that when we defined the variable a few lines above. We now proceed to validate its keys.
 
 Every attribute key must start with a ASCII letter, underscore or colon, and must follow with zero or more of the following:
 - A letter.
@@ -994,66 +910,112 @@ Every attribute key must start with a ASCII letter, underscore or colon, and mus
 This is the *abstruse rule* I talked about earlier in the readme. This arcana was kindly provided [by this article](http://razzed.com/2009/01/30/valid-characters-in-attribute-names-in-htmlxml/). The regex below was taken from the article and modified to add the permitted Unicode characters.
 
 ```javascript
-         [
-            ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
-            dale.keys (input [1]),
-            /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
-            'each', teishi.test.match
-         ]
+            [
+               ['lith attribute keys', 'start with an ASCII letter, underscore or colon, and be followed by letters, digits, underscores, colons, periods, dashes, extended ASCII characters, or any non-ASCII characters.'],
+               dale.keys (attributes),
+               /^[a-zA-Z_:][a-zA-Z_:0-9.\-\u0080-\uffff]*$/,
+               'each', teishi.test.match
+            ],
 ```
 
 Attribute values can be strings, numbers (integers and floats). We also accept `undefined`, `null` and `false` as falsy values that invalidate the property, so we will also accept `undefined`, `null` or `boolean`.
 
 ```javascript
-         ['lith attribute values', input [1], ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
+            ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
 ```
 
 Contents can be any lithbag element: string, integer, float, array and undefined.
 
 ```javascript
-         ['lith contents', input [2], lith.k.lithbagElements, 'oneOf']
+            ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
 ```
 
-We set the `mute` flag, to return the error message instead of printing it directly.
+Those are all the requirements for a valid lith. If it turns out to be valid, we will return the string `'Lith'`, otherwise we will return `false`. After we do that, we also close the conditional.
 
 ```javascript
-      ]}, true);
+         ]) ? 'Lith' : false;
+      }
+```
+
+If we're here, we can only be dealing with a lithbag (or an invalid input). We proceed to check whether `input` is a valid lithbag.
+
+```javascript
+      return teishi.v ([
+```
+
+We check that `input` has a type matching those of a valid lithbag element.
+
+```javascript
+         ['lithbag', inputType, lith.k.lithbagElements, 'oneOf', teishi.test.equal],
+```
+
+```javascript
+         [inputType === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
+```
+
+Depending on whether the validation was successful or not, we return either `'Lithbag'` or `false`. After this, there's nothing else to do, so we close the function.
+
+```javascript
+      ]) ? 'Lithbag' : false;
    }
 ```
 
 ### Lith generation
 
-We now define `lith.g`, the main function of the library. This library takes an `input` (a lith or lithbag) and returns a string with the corresponding HTML.
+We now define `lith.g`, the main function of the library. This library takes an `input` (a lith or lithbag) and returns a string with the corresponding HTML. As a second optional argument, it takes an optional boolean flag, `prod`, to enable `prod mode`.
 
 ```javascript
-   lith.g = function (input) {
+   lith.g = function (input, prod) {
 ```
 
-We call `lith.v` to determine whether `input` is a lith, lithbag or invalid, and store that result in a local variable `inputType`.
+`prod mode` is an option that makes `lith.g` to not validate its input. If either `lith.prod` is set to a truthy value (or a truthy value is passed as the second argument to `lith.g`, we will consider that `prod mode` is enabled.
+
+```javascript
+      if (prod || lith.prod) {
+```
+
+If we're here, bring on the `prod mode`. This means that *we will assume that `input` is either a valid lith or a valid lithbag*. We quickly determine whether `input` is a lith or not. For this we check that `input` is indeed an array with a valid HTML tag as its first element.
+
+```javascript
+         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) !== -1) {
+```
+
+If we're here, `input` is a lith. We return an invocation to `lith.generateLith`, passing it both `input` and `true`. The reason we pass a second argument is that because `lith.generateLith` can invoke `lith.g`, we need to preserve the `prod mode` flag in recursive calls.
+
+```javascript
+            return lith.generateLith (input, true);
+         }
+```
+
+If we're here, `input` is a lithbag. We invoke `lith.generateLithbag`. The second argument of the invocation is `false`; we'll explain why below.
+
+```javascript
+         return lith.generateLithbag (input, false, true);
+      }
+```
+
+If we're here, we need to validate our input. We do so and store the result in a variable `inputType`.
 
 ```javascript
       var inputType = lith.v (input);
 ```
 
-If `input` is invalid, `lith.v` already printed the corresponding error, so we just return `false`.
+Now, because of how we defined `lith.v`, `inputType` can only be `false`, `'Lith'` or `'Lithbag'`. If it is `false`, we will want to return `false`, otherwise we will want to invoke the appropriate function (`lith.generateLith` or `lith.generateLithbag`).
 
 ```javascript
-      if (inputType === false) return false;
+      return inputType ? lith ['generate' + inputType] (input) : false;
 ```
 
-In the same way as `lith.v`, `lith.g` relies on two functions (`lith.generateLith` and `lith.generateLithbag`) to deal with liths and lithbags.
-
-We return the results of the corresponding function.
+At this point we're done, so we close the function.
 
 ```javascript
-      return lith [inputType === 'lith' ? 'generateLith' : 'generateLithbag'] (input);
    }
 ```
 
-`lith.generateLithbag` takes two arguments: `lithbag` and `dontEntityify`. We will explain the second argument below.
+`lith.generateLithbag` takes three arguments: `lithbag`, `dontEntityify` and `prod` (the `prod mode` flag). We will explain the second argument below.
 
 ```javascript
-   lith.generateLithbag = function (lithbag, dontEntityify) {
+   lith.generateLithbag = function (lithbag, dontEntityify, prod) {
 ```
 
 We initialize a local variable `output` to an empty string, on which we will concatenate the output of the function.
@@ -1066,40 +1028,42 @@ We will now iterate through the elements of `lithbag`.
 
 Notice that if `lithbag` is `undefined`, the entire function below will not be executed and `output` will remain being equal to an empty string.
 
-We use `dale.stop` and pass `false` as the second argument because we want to detect invalid lithbag elements and stop if one is found. If an invalid element is found, the inner function passed as third argument to `dale.stop` will return `false`. Other return values will be ignored, because the valid output will be concatenated into the `output` string.
+We use `dale.stop` and pass `false` as the second argument because we want to detect invalid lithbag elements and stop if one is found. If an invalid element is found, the inner function passed as third argument to `dale.stop` will return `false`. Other return values will be ignored, because the valid outputs will be concatenated onto the `output` string.
 
 ```javascript
       if (dale.stop (lithbag, false, function (v) {
 ```
 
-We now deal with simple values (string, integer and float). Notice we deliberately ignore `undefined`, since we don't want it to produce any output.
+If `v` is `undefined`, we return `undefined`.
 
 ```javascript
-         var typeV = type (v);
-         if (typeV === 'string' || typeV === 'integer' || typeV === 'float') {
+         if (v === undefined) return;
 ```
 
-Depending on whether `dontEntityify` is deactivated or not, we entityify the element. We do this because the contents of `<style>` and `<script>` tags should not be entityified, otherwise the inline CSS or javascript would be broken.
+We now deal with simple values that are not `undefined` (string, integer and float).
+
+Depending on whether `dontEntityify` is truthy or not, we entityify the element. The reason for the existence of this option is that the contents of `<style>` and `<script>` tags should not be entityified, otherwise the inline CSS or javascript would be broken. So, the only case where `dontEntityify` is truthy is when `lith.generateLith` detects a `script` or `style` tag, and hence invokes `lith.generateLithbag` with a truthy second argument. In every other case where `lith.generateLithbag` is invoked, this argument should remain `false` (which also explains why we set it as `false` in `lith.g` above.
+
 
 Notice that we coerce `v` into a string before entityifying it, because it may be a number and `lith.entityify` only accepts strings.
 
 ```javascript
-            output += (dontEntityify ? v : lith.entityify (v + ''));
-         }
+         if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + ''));
 ```
 
-If the lithbag element is an array, we will do a recursive call to `lith.g`, because this element could be either a lith, a lithbag, or invalid.
-
-We will store the value of this recursive call into a local variable `recursiveOutput`.
+If we're here, the lithbag is an array. we will do a recursive call to `lith.g`. If we're in `prod mode`, we will simply call `lith.g` and concatenate its result to `output`.
 
 ```javascript
-         if (typeV === 'array') {
-            var recursiveOutput = lith.g (v);
+         if (prod) output += lith.g (v, prod);
 ```
+
+If `prod` is not enabled, we need to consider the possibility that `lithbag` ins invalid. We will call `lith.g` and store the value of this recursive call into a local variable `recursiveOutput`.
 
 If `recursiveOutput` is `false`, we will return `false` from this inner function, which will in turn also make `lith.generateLithbag` and `lith.g` return `false`. The relevant error message will already have been printed by the recursive call to `lith.g`.
 
 ```javascript
+         else {
+            var recursiveOutput = lith.g (v, prod);
             if (recursiveOutput === false) return false;
 ```
 
@@ -1116,7 +1080,7 @@ If the call to `dale.stop` returned `false`, we found an invalid (array) lithbag
       }) === false) return false;
 ```
 
-If we are here, no errors were found. We return `output` and close the function.
+If we are here, no errors were found, which means that `lithbag` was valid. We return `output` and close the function.
 
 ```javascript
       else return output;
@@ -1126,19 +1090,22 @@ If we are here, no errors were found. We return `output` and close the function.
 `lith.generateLith` takes an `input`, a valid lith. The reason I didn't name it `lith` is that I don't want the function to lose the reference to the `lith` object.
 
 ```javascript
-   lith.generateLith = function (input) {
+   lith.generateLith = function (input, prod) {
 ```
 
-We invoke `lith.split` on `input` so that the lith will now have three elements.
+Let's remember that if this function is called, `input` is has to be a valid `lith` (either because it was validated by `lith.g` or because we're in `prod mode` and assume that all inputs are valid).
+
+We now initialize two variables, `attributes` and `contents`. `attributes` will be the second element of `input` if and only if it is of type `object`. Since `contents` can never be an object, there's no source of ambiguity here. And `contents` will be the argument immediately after `atttributes`, which means either the second (where no `attributes` are present) or the third one (when `attributes` are present).
 
 ```javascript
-      input = lith.split (input);
+      var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+      var contents   = input [attributes ? 2 : 1];
 ```
 
-If the tag is `'LITERAL'`, we will just return the contents of the lith without any further modifications.
+If the tag is `'LITERAL'`, we will just return the contents of the lith without any further modifications. Notice that we discard the `attributes` in this case since `'LITERAL'` is merely a pseudo-tag.
 
 ```javascript
-      if (input [0] === 'LITERAL') return input [2];
+      if (input [0] === 'LITERAL') return contents;
 ```
 
 We create a local variable `output` and place in it an opening angle bracket `<`, plus the tag.
@@ -1147,18 +1114,20 @@ We create a local variable `output` and place in it an opening angle bracket `<`
       var output = '<' + input [0];
 ```
 
-We iterate the attributes of the lith.
+We iterate the attributes of the lith. If `attributes` is `undefined`, the inner function passed to `dale.do` will not be executed.
 
 ```javascript
-      dale.do (input [1], function (v, k) {
+      dale.do (attributes, function (v, k) {
 ```
 
-If the attribute value is not falsy, we concatenate the attribute key and the attribute value into `output`, putting a `=` in the middle.
+We will discard all attributes that have a falsy value (empty string, `null`, `undefined` and `false`), with the exception of `0`, which can be a perfectly valid attribute value.
+
+For every attribute which has a proper value, we will concatenate it onto `output`.
 
 Mind that we entityify both the key and the value. Also mind that we use double quotes for enclosing the value. Finally, notice that we coerce `k` and `v` into strings before passing them to `lith.entityify`.
 
 ```javascript
-         if (v !== undefined && v !== null && v !== false) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v || v === 0) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
       });
 ```
 
@@ -1168,20 +1137,33 @@ We close the opening tag, whether or not we added attributes.
       output += '>';
 ```
 
-If the contents of the lith are an array (which means that it must be either a lith or a lithbag), we pass it to a recursive call of `lith.g`.
+If the contents of the lith are an array (which means that it must be either a lith or a lithbag):
 
 ```javascript
-      if (type (input [2]) === 'array') {
-         var result = lith.g (input [2]);
+      if (type (contents) === 'array') {
+```
+
+If we're in `prod mode`, we simply invoke `lith.g` and concatenate its result to `output`.
+
+```javascript
+         if (prod) output += lith.g (contents, prod);
+```
+
+Otherwise, we will call `lith.g` and store its result in a variable `recursiveOutput`.
+
+```
+         else {
+            var recursiveOutput = lith.g (contents);
 ```
 
 If the call returns `false`, we return `false` as well - the output generated so far will be ignored, because the lith is invalid.
 
-Otherwise, we concatenate the result of the call into output.
+Otherwise, we concatenate the result of the call onto `output`.
 
 ```javascript
-         if (result === false) return false;
-         output += result;
+            if (recursiveOutput === false) return false;
+            output += recursiveOutput;
+         }
       }
 ```
 
@@ -1192,7 +1174,7 @@ Notice that if the tag of the lith we are processing is `<style>` or `<script>`,
 Also, there's no error checking here, since if any of these possible elements is passed to the function, no error is possible.
 
 ```javascript
-      else output += lith.generateLithbag (input [2], ((input [0] === 'style' || input [0] === 'script') ? true : false));
+      else output += lith.generateLithbag (contents, ((input [0] === 'style' || input [0] === 'script') ? true : false), prod);
 ```
 
 We place the closing tag if the element is not a void one.
@@ -1226,89 +1208,69 @@ Unlike `lith.v`, `lith.css.v` will hold all the validation logic in itself, inst
    lith.css.v = function (input) {
 ```
 
-We first try to detect if `input` is a litcbag. A litcbag is an array that contains zero or more litcs or litcbags - in essence, a container of litcs.
+Either `litcs` or `litcbags` have to be arrays. We validate this and return `false` if it's not the case.
 
 ```javascript
-      if (type (input) === 'array') {
+      if (teishi.stop (['litc or litcbag', input, 'array'])) return false;
 ```
 
 If the array has length zero, we consider it an empty litcbag, so we return `true`.
 
-```javascript
-         if (input.length === 0) return true;
-```
-
-If the first element of the `input` is also an array, `input` can only be a litcbag, not a litc, since the first element of a litc is a string.
-
-Actually, this could be an invalid element, but we'll leave that check to further recursive calls, instead of doing a deep validation on the spot. In any case, we now return `true`.
+If the first element of the `input` is also an array, `input` can only be a litcbag, not a litc, since the first element of a litc is a string. Actually, this could be an invalid element, but we'll leave that check to further recursive calls, instead of doing a deep validation on the spot. In any case, we now return `true`.
 
 ```javascript
-         if (type (input [0]) === 'array') return true;
-      }
+      if (input.length === 0 || type (input [0]) === 'array') return true;
 ```
 
-We now check that `input` should fulfill the requirements for being a valid litc:
-- It should be an array.
-- It should have length between 1 and 3.
+If we're here, we are then dealing with a purported `litc`.
+
+We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `litc`, depending on whether we found `attributes` or not.
 
 ```javascript
-      if (teishi.stop ([
-         ['litc', input, 'array'],
-         function () {
-            return ['litc length', input.length, {min: 1, max: 3}, teishi.test.range]
-         }
+      var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+      var contents   = input [attributes ? 2 : 1];
 ```
 
-If an error is found, `teishi.stop` will print an error and this function will return `false`.
-
-```javascript
-      ])) return false;
-```
-
-We now want to make the litc, which can have only two elements (a selector plus attributes, or a selector plus contents) into an array with three elements (selector, attributes, contents).
-
-Because of the similarity between a lith and a litc, we can reuse `lith.split` to do this. Notice also that the last block of validation above is virtually identical to the initial part of `lith.validateLith`.
-
-```javascript
-      input = lith.split (input);
-```
-
-We will now make the final check on the candidate litc. We will directly return the result of this validation.
+We now check that `input` should fulfill the requirements for being a valid litc. First of all, it should have length between 1 and 3.
 
 ```javascript
       return teishi.v ([
+         ['litc length', input.length, {min: 1, max: 3}, teishi.test.range],
+```
+
+If, however, the `litc` has no attributes, its length can be at most 2, since it will only have a selector and contents.
+
+```javascript
+         [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
 ```
 
 We ensure that the selector is a string, we validate the attributes with a helper function `lith.css.vAttributes`, and we check that the contents are either `undefined` or an array.
 
 ```javascript
          ['litc selector', input [0], 'string'],
-         lith.css.vAttributes (input [1]),
-         ['litc contents', input [2], ['undefined', 'array'], 'oneOf']
+         lith.css.vAttributes (attributes),
+         ['litc contents', contents, ['undefined', 'array'], 'oneOf']
 ```
 
-We close the call and the function.
+We close the `teishi.v` call and the function, since there's nothing else to do.
 
 ```javascript
       ]);
    }
 ```
 
-`lith.css.vAttributes` (short for `validateAttributes`) consists of a simple call to `teishi.v`, which value we will return. We separate this function from the one above because we will reuse it.
+`lith.css.vAttributes` (short for `validateAttributes`) consists of a simple call to `teishi.v`, which value we will return. We separate this function from the one above because we will reuse it later.
 
 ```javascript
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
 ```
 
-We ensure that:
-- `attributes` is either `undefined` or an object.
-- The elements within `attributes` are strings, integers, floats, objects or falsy values (`undefined`, `null` and `false`).
+We ensure that each of the elements within `attributes` are strings, integers, floats, objects or falsy values (`undefined`, `null` and `false`). If `attributes` is `undefined`, this will be true because an `undefined` value in the context of `eachOf` is equivalent to an empty array.
 
 We then close the call and the function.
 
 ```javascript
-         ['litc attributes', attributes, ['object', 'undefined'], 'oneOf'],
          ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf'],
       ]);
    }
@@ -1356,14 +1318,14 @@ We iterate through the elements of the litcbag. If any of the results of the inn
 
 We invoke `lith.css.g` recursively, passing the element (`v`) and `selector`.
 
-If the result is `false` (because `v` was neither a valid litc or litcbag), we return `false`.
+If `recursiveOutput` is `false` (because `v` was neither a valid litc or litcbag), we return `false`.
 
-If the result is not `false`, we concatenate it to `output`.
+If `recursiveOutput` is not `false`, we concatenate it to `output`.
 
 ```javascript
-            var result = lith.css.g (v, selector);
-            if (result === false) return false;
-            output += result;
+            var recursiveOutput = lith.css.g (v, selector);
+            if (recursiveOutput === false) return false;
+            output += recursiveOutput;
 ```
 
 If the iteration returned `false`, it's because we found an error, so we return `false`.
@@ -1391,10 +1353,11 @@ If the litc currently being processed is not contained in any other litc, the se
       if (selector === undefined) selector = '';
 ```
 
-We apply `lith.split` to `input` so that it will have three elements.
+We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `litc`, depending on whether we found `attributes` or not.
 
 ```javascript
-      input = lith.split (input);
+      var attributes = type (input [1]) === 'object' ? input [1] : undefined;
+      var contents   = input [attributes ? 2 : 1];
 ```
 
 We now will generate the proper selector. To do this, we first split the selector by a comma plus whitespace. If there's no commas in the selector, this will be irrelevant, but if they are, doing this will allow us to write the following CSS:
@@ -1495,10 +1458,10 @@ We are going to iterate `attributes`. If the inner function returns `false`, we 
          return dale.stop (attributes, false, function (v, k) {
 ```
 
-If the attribute value is falsy, we ignore it.
+If the attribute value is falsy, we ignore it (with the exception of `0`, which is falsy but a proper value for an attribute).
 
 ```javascript
-            if (v === undefined || v === null || v === false) return;
+            if (! v && v !== 0) return;
 ```
 
 We note the type of `v`.
@@ -1544,7 +1507,7 @@ Hence, we'll take the key, split it by a comma (plus optional trailing spaces), 
 We invoke `addAttributes` passing to it the attributes of the litc. If it returns `false`, we return `false`.
 
 ```javascript
-      if (addAttributes (input [1]) === false) return false;
+      if (addAttributes (attributes) === false) return false;
 ```
 
 We place the closing brace since we're finished placing attributes.
@@ -1556,13 +1519,13 @@ We place the closing brace since we're finished placing attributes.
 If the litc has contents, we process them.
 
 ```javascript
-      if (input [2]) {
+      if (contents) {
 ```
 
 We make a recursive call to `lith.css.g`, passing the contents of the litc and the selector. We store that value in a local variable `recursiveOutput`.
 
 ```javascript
-         var recursiveOutput = lith.css.g (input [2], selector);
+         var recursiveOutput = lith.css.g (contents, selector);
 ```
 
 If the recursive call returned `false`, the contents of the litc are invalid, so the whole litc is invalid. We return `false`.
