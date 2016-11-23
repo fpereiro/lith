@@ -101,7 +101,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/1bb6973037dd409f667231d51c55845672d19821/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/984e9295f7ef31cd04576b8f9ac015e1953aabc1/teishi.js"></script>
-<script src=""></script>
+<script src="https://cdn.rawgit.com/fpereiro/lith/3c570a8da0a54033c3d04496eb8f75c6a4a3877c/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -225,7 +225,7 @@ The recursive definition of a lithbag has the following properties:
 
 ### HTML escapes
 
-lith will escape all special characters (`'&'`, `<`, `>, `"`, `'` and `` ` ``) when generating HTML. However, the contents of `style` and `script` tags will not be escaped, since those special characters are expected to remain unescaped in both CSS and JS.
+lith will escape all special characters (`'&'`, `<`, `>`, `"`, `'` and `` ` ``) when generating HTML. However, the contents of `style` and `script` tags will not be escaped, since those special characters are expected to remain unescaped in both CSS and JS.
 
 If you need to insert a chunk of literal HTML into a lith, you can do it by using the `LITERAL` pseudo-tag:
 
@@ -738,7 +738,7 @@ If the input is invalid, lith will print an error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 250 lines long.
+The complete source code is contained in `lith.js`. It is about 240 lines long.
 
 Below is the annotated source.
 
