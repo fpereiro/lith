@@ -1,5 +1,5 @@
 /*
-lith - v4.0.0
+lith - v4.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -359,9 +359,9 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ],
             [
                ['div.links', {width: 100}, [
-                  ['a', {'font-size': 14}, ['&:hover', {color: 'red'}]]
+                  ['a', {'font-size': 14, 'margin-top': -2}, ['&:hover', {color: 'red'}]]
                ]],
-               'div.links{width:100px;}div.links a{font-size:14px;}div.links a:hover{color:red;}'
+               'div.links{width:100px;}div.links a{font-size:14px;margin-top:-2px;}div.links a:hover{color:red;}'
             ],
             [
                ['h2, h3', ['span', {color: 'green'}]],
@@ -372,8 +372,8 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                'div{}div h2, div h3{color:green;}'
             ],
             [
-               ['div', ['h2, h3', ['&:hover', {color: 'green'}]]],
-               'div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}'
+               [['LITERAL', '@media {'], ['div', ['h2, h3', ['&:hover', {color: 'green'}]]], ['LITERAL', '}']],
+               '@media {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
             ]
          ], function (v) {
             if (lith.css.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);

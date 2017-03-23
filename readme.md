@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.1.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -99,9 +99,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/1bb6973037dd409f667231d51c55845672d19821/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/984e9295f7ef31cd04576b8f9ac015e1953aabc1/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/3c570a8da0a54033c3d04496eb8f75c6a4a3877c/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/a168912fdffddadb84a662f10e8bfa76d8e11beb/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/29fb21807975f3e8491276a96815421b48730b2b/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -744,7 +744,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.0.0
+lith - v4.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -1244,12 +1244,12 @@ If, however, the `litc` has no attributes, its length can be at most 2, since it
          [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
 ```
 
-We ensure that the selector is a string, we validate the attributes with a helper function `lith.css.vAttributes`, and we check that the contents are either `undefined` or an array.
+We ensure that the selector is a string, we validate the attributes with a helper function `lith.css.vAttributes`, and we check that the contents are either `undefined` or an array (with the exception of the `LITERAL` pseudo-selector).
 
 ```javascript
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (attributes),
-         ['litc contents', contents, ['undefined', 'array'], 'oneOf']
+         [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
 ```
 
 We close the `teishi.v` call and the function, since there's nothing else to do.
@@ -1296,6 +1296,12 @@ If `input` is an empty array, we consider it to be an empty litcbag. We return a
 
 ```javascript
       if (input.length === 0) return '';
+```
+
+If the first element of `input` is `LITERAL`, we consider the second element of the input to be a string, so we return it.
+
+```javascript
+      if (input [0] === 'LITERAL') return input [1];
 ```
 
 We define a local variable `output` where we will concatenate the output of the function.
@@ -1478,10 +1484,10 @@ If the attribute being iterated is an object, we invoke `addAttributes` recursiv
 
 If the attribute is an integer, by convention we consider it to be a measure in pixels. Hence, we append `px` to the number.
 
-However, we don't do this for a `0` value since [this is optional](https://www.w3.org/TR/CSS2/syndata.html#length-units) - plus, I prefer to omit it, since it looks cleaner.
+However, we don't do this for a `0` value since [this is optional](https://www.w3.org/TR/CSS2/syndata.html#length-units) - plus, I prefer to omit it, since it looks cleaner. And we don't do it for `1`, since we consider that to represent `100%`.
 
 ```javascript
-            if (type (v) === 'integer' && v !== 0) v += 'px';
+            if (typeV === 'integer' && (v < 0 || v > 1)) v += 'px';
 ```
 
 If the attribute is a float (using the very lax definition that a float is something that leaves a remainder after dividing it by one), we consider it to be a percentage measure. Hence, we multiply it by 100 and add a `%` after it.

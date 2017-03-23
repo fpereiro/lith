@@ -1,5 +1,5 @@
 /*
-lith - v4.0.0
+lith - v4.1.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -169,7 +169,7 @@ Please refer to readme.md to read the annotated source.
          [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (attributes),
-         ['litc contents', contents, ['undefined', 'array'], 'oneOf']
+         [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
       ]);
    }
 
@@ -188,6 +188,8 @@ Please refer to readme.md to read the annotated source.
       if (input.length === 0) return '';
 
       var output = '';
+
+      if (input [0] === 'LITERAL') return input [1];
 
       if (type (input [0]) === 'array') {
          if (dale.stop (input, false, function (v, k) {
@@ -218,7 +220,7 @@ Please refer to readme.md to read the annotated source.
             if (! v && v !== 0) return;
             var typeV = type (v);
             if (typeV === 'object') return addAttributes (v);
-            if (typeV === 'integer' && v > 1) v += 'px';
+            if (typeV === 'integer' && (v < 0 || v > 1)) v += 'px';
             if (typeV === 'float' || v === 1) v = (v * 100) + '%';
             dale.do (k.split (/,\s*/), function (v2) {
                output += v2 + ':' + v + ';';
