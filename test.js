@@ -1,5 +1,5 @@
 /*
-lith - v4.1.0
+lith - v4.2.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -98,7 +98,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
       if (lith.g (output) !== lith.g (output, true)) throw new Error ('prod mode mismatch!');
 
-      fs.writeFileSync ('test.html', lith.g (output), {encoding: 'utf8'});
+      fs.writeFileSync ('test.html', lith.g (output), 'utf8');
 
       teishi.l ('Success', 'test.html generated successfully');
    }
@@ -405,10 +405,13 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             document.getElementById ('inputLitc').style ['background-color'] = 'white';
          }
 
-         document.getElementById ('inputLith').value = JSON.stringify ([['h2', ['span', 'The word:']], ['a', {id: 'bird', class: null}, 'Surrrrrrrrrrrrfin\' bird']]);
-         document.getElementById ('inputLitc').value = JSON.stringify ([['a', {'font-size': 22, 'font-family': false, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]], ['h2, h3', ['span, strong', {display: 'block', margin: 20, 'font-weight': 'bold'}]]]);
+         try {
+            document.getElementById ('inputLith').value = JSON.stringify ([['h2', ['span', 'The word:']], ['a', {id: 'bird', class: null}, 'Surrrrrrrrrrrrfin\' bird']]);
+            document.getElementById ('inputLitc').value = JSON.stringify ([['a', {'font-size': 22, 'font-family': false, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]], ['h2, h3', ['span, strong', {display: 'block', margin: 20, 'font-weight': 'bold'}]]]);
+            document.getElementById ('inputLith').dispatchEvent (new Event ('change', {'bubbles': true}));
 
-         document.getElementById ('inputLith').dispatchEvent (new Event ('change', {'bubbles': true}));
+         }
+         catch (error) {}
 
          // *** BENCHMARKING LIGHT METAL ***
 
@@ -435,37 +438,36 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
          // *** BENCHMARK HEAVY METAL ***
 
-         setTimeout (function () {
+         var heavymetal = {prod: [], dev: []};
 
-            var heavymetal = {prod: [], dev: []};
+         var i = 0, max = 5000, table = [];
 
-            var i = 0, max = 5000, table = [];
+         while (i++ < max) {
+            table.push (['td', {class: i}, i]);
+         }
 
-            while (i++ < max) {
-               table.push (['td', {class: i}, i]);
-            }
+         if (lith.g (table, true) !== lith.g (table)) throw new Error ('dev & prod modes mismatch!');
 
-            if (lith.g (table, true) !== lith.g (table)) throw new Error ('dev & prod modes mismatch!');
+         log ('Starting heavy metal benchmark');
 
-            log ('Starting heavy metal benchmark');
+         dale.do (dale.times (5), function () {
 
-            dale.do (dale.times (5), function () {
+            dale.do (['prod', 'dev'], function (v) {
 
-               dale.do (['prod', 'dev'], function (v) {
+               var time = Date.now ();
+               lith.g (table, v === 'prod');
 
-                  var time = Date.now ();
-                  lith.g (table, v === 'prod');
-
-                  heavymetal [v].push (Date.now () - time);
-               });
+               heavymetal [v].push (Date.now () - time);
             });
+         });
 
-            dale.do (heavymetal, function (v, k) {
-               var sum = 0;
-               dale.do (v, function (v2) {sum += v2});
-               log ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms)');
-            });
-         }, 100);
+         dale.do (heavymetal, function (v, k) {
+            var sum = 0;
+            dale.do (v, function (v2) {sum += v2});
+            log ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms)');
+         });
+
+         lith.perf = {light: lightmetal, heavy: heavymetal};
 
       }) ();
    }

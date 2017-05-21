@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.1.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.2.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -99,12 +99,24 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/a168912fdffddadb84a662f10e8bfa76d8e11beb/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/29fb21807975f3e8491276a96815421b48730b2b/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/0ee5d8bff28e7311b6bccd0ff837388126360f6e/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/9135a9699d53aac1eccc33becb31e7d402a52214/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/9781a179ed2d5abce8d6383edc19f345db58ce70/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
+
+lith is pure ES5 javascript and it should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility is as follows:
+
+- Chrome 15 and above.
+- Firefox 22 and above.
+- Safari 5.1 and above.
+- IE9 and above.
+- Opera 11.6 and above.
+
+The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
+
+<a href="https://www.browserstack.com"><img src="https://bstacksupport.zendesk.com/attachments/token/kkjj6piHDCXiWrYlNXjKbFveo/?name=Logo-01.svg" width="150px" height="33px"></a>
 
 ## Liths
 
