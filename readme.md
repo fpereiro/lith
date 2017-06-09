@@ -101,7 +101,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/9135a9699d53aac1eccc33becb31e7d402a52214/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/9781a179ed2d5abce8d6383edc19f345db58ce70/teishi.js"></script>
-<script src=""></script>
+<script src="https://cdn.rawgit.com/fpereiro/lith/9aafc7f5045640f04938944bbdf3b7eb2635c820/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -733,9 +733,9 @@ div h2:hover, div h3:hover {
 ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]
 ```
 
-The one problem you might experience writing CSS with litcs is media queries. For this reason, you can use `lith.css.media`, which will transform your media query into a valid litc.
+Writing media queries with litcs is tricky. To sidestep this problem, you can use `lith.css.media`, which will transform your media query into a valid litc.
 
-For example, if you want to write the following media query in the context of your litc:
+For example, if you want to write the following media query in the context of a litc:
 
 ```css
 @media (max-width: 600px) {
