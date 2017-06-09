@@ -1,5 +1,5 @@
 /*
-lith - v4.2.0
+lith - v4.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -239,6 +239,13 @@ Please refer to readme.md to read the annotated source.
       }
 
       return output;
+   }
+
+   // *** MEDIA QUERIES ***
+
+   lith.css.media = function (selector, litc) {
+      if (teishi.stop (['selector', selector, 'string'])) return false;
+      return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
    }
 
 }) ();

@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.2.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.3.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -101,7 +101,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/9135a9699d53aac1eccc33becb31e7d402a52214/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/9781a179ed2d5abce8d6383edc19f345db58ce70/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/13a7d1893b29611ee24e2b451148ba266e678249/lith.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -733,6 +733,29 @@ div h2:hover, div h3:hover {
 ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]
 ```
 
+The one problem you might experience writing CSS with litcs is media queries. For this reason, you can use `lith.css.media`, which will transform your media query into a valid litc.
+
+For example, if you want to write the following media query in the context of your litc:
+
+```css
+@media (max-width: 600px) {
+   .sidebar {
+      display: none;
+   }
+}
+```
+
+You can create it with:
+
+```javascript
+var litc = [
+   lith.css.media ('(max-width: 600px)', ['.sidebar', {display: 'none'}]),
+   // rest of your litc goes here
+]
+```
+
+`lith.css.media` takes two arguments: a `selector`, which is the media query selector. Notice that you should omit the `@media` part, since the function automatically adds it for you. The second argument is a litc (simple or nested), which will be inserted inside the media query. If you don't pass a valid `selector`, the function will return `false`. The litc is not validated here since it will be validated by `lith.css.g` later.
+
 ### Litc usage
 
 litcs are generated using two core functions:
@@ -750,7 +773,7 @@ If the input is invalid, lith will print an error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 240 lines long.
+The complete source code is contained in `lith.js`. It is about 250 lines long.
 
 Below is the annotated source.
 
@@ -1563,6 +1586,24 @@ We return `output` and close the function.
 
 ```javascript
       return output;
+   }
+```
+
+Here we define `lith.css.media`, which is a helper function for creating media queries. The reason we need a special function is because media queries, unlike normal CSS, rely on nested blocks.
+
+This function takes a selector and a litc. We validate the selector, which will comprise the core of the media query (namely, the rest of the selector after `'@media'`. We will not validate the litc, since we assume that `lith.css.g` will validate it later in the context of the entire litc being generated. Note that the function will return `false` if `selector` is not a string.
+
+```javascript
+   lith.css.media = function (selector, litc) {
+      if (teishi.stop (['selector', selector, 'string'])) return false;
+```
+
+The trick to generate the nested block is to use the `LITERAL` pseudo-selector to generate the opening and the closing parts of the media query. The closing part is merely a closing curly brace. Surrounded by these two literals, we pass the litc unchanged. This will have the desired effect without modifying the logic of lith.css.g.
+
+Note that we add `'@media' ` at the beginning of the selector.
+
+```
+      return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
    }
 ```
 

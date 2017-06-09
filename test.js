@@ -1,5 +1,5 @@
 /*
-lith - v4.2.0
+lith - v4.3.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -374,6 +374,10 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             [
                [['LITERAL', '@media {'], ['div', ['h2, h3', ['&:hover', {color: 'green'}]]], ['LITERAL', '}']],
                '@media {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
+            ],
+            [
+               lith.css.media ('(max-width: 600px)', ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]),
+               '@media (max-width: 600px) {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
             ]
          ], function (v) {
             if (lith.css.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);
