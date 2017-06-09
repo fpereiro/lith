@@ -756,6 +756,8 @@ var litc = [
 
 `lith.css.media` takes two arguments: a `selector`, which is the media query selector. Notice that you should omit the `@media` part, since the function automatically adds it for you. The second argument is a litc (simple or nested), which will be inserted inside the media query. If you don't pass a valid `selector`, the function will return `false`. The litc is not validated here since it will be validated by `lith.css.g` later.
 
+If you passed valid arguments to `lith.css.media`, the output will always be a litc, which you can use standalone or nest within another one.
+
 ### Litc usage
 
 litcs are generated using two core functions:
@@ -1600,9 +1602,9 @@ This function takes a selector and a litc. We validate the selector, which will 
 
 The trick to generate the nested block is to use the `LITERAL` pseudo-selector to generate the opening and the closing parts of the media query. The closing part is merely a closing curly brace. Surrounded by these two literals, we pass the litc unchanged. This will have the desired effect without modifying the logic of lith.css.g.
 
-Note that we add `'@media' ` at the beginning of the selector.
+Note that we add `'@media' ` at the beginning of the selector. Note also that the output of this function will be a litc.
 
-```
+```javascript
       return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
    }
 ```
