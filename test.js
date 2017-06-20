@@ -126,6 +126,12 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             if (lith.g (v) !== false) throw new Error ('Invalid input accepted.');
          });
 
+         if (lith.g (['p'], 2) !== false) throw new Error ('Invalid prod parameter accepted.');
+
+         lith.prod = 'yes';
+         if (lith.g (['p']) !== false) throw new Error ('Invalid lith.prod parameter accepted.');
+         lith.prod = undefined;
+
          dale.do ([
             /a/,
             ['p', {}, [], []],
@@ -133,6 +139,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             [/b/],
             ['p', {}, /a/],
             ['p', {}, [/a/]],
+            ['p', {attribute: /boom/}]
          ], function (v) {
             if (lith.css.g (v) !== false) throw new Error ('Invalid input accepted.');
          });

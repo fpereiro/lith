@@ -1,5 +1,5 @@
 /*
-lith - v4.3.0
+lith - v4.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -18,7 +18,7 @@ Please refer to readme.md to read the annotated source.
    if (isNode) var lith = exports;
    else        var lith = window.lith = {};
 
-   var type = teishi.t;
+   var type = teishi.t, log = teishi.l;
 
    // *** CONSTANTS ***
 
@@ -70,13 +70,17 @@ Please refer to readme.md to read the annotated source.
             ],
             ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
             ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
-         ]) ? 'Lith' : false;
+         ], function (error) {
+            log ('lith.v - Invalid lith', {error: error, 'original input': input});
+         }) ? 'Lith' : false;
       }
 
       return teishi.v ([
          ['lithbag', inputType, lith.k.lithbagElements, 'oneOf', teishi.test.equal],
-         [inputType === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
-      ]) ? 'Lithbag' : false;
+         [inputType === 'array', ['lithbag elements', input, lith.k.lithbagElements, 'eachOf']]
+      ], function (error) {
+         log ('lith.v - Invalid lithbag', {error: error, 'original input': input});
+      }) ? 'Lithbag' : false;
    }
 
    // *** LITH GENERATION ***
@@ -84,6 +88,7 @@ Please refer to readme.md to read the annotated source.
    lith.g = function (input, prod) {
 
       if (prod || lith.prod) {
+         if ((prod || lith.prod) !== true) return log ('lith.g', 'prod or lith.prod must be true or undefined.');
          if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) !== -1) {
             return lith.generateLith (input, true);
          }
@@ -157,7 +162,9 @@ Please refer to readme.md to read the annotated source.
 
    lith.css.v = function (input) {
 
-      if (teishi.stop (['litc or litcbag', input, 'array'])) return false;
+      if (teishi.stop (['litc or litcbag', input, 'array'], function (error) {
+         log ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
+      })) return false;
 
       if (input.length === 0 || type (input [0]) === 'array') return true;
 
@@ -170,7 +177,9 @@ Please refer to readme.md to read the annotated source.
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (attributes),
          [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
-      ]);
+      ], function (error) {
+         log ('lith.css.v - Invalid litc', {error: error, 'original input': input});
+      });
    }
 
    lith.css.vAttributes = function (attributes) {

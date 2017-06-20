@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.3.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.4.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -101,7 +101,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/9135a9699d53aac1eccc33becb31e7d402a52214/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/9781a179ed2d5abce8d6383edc19f345db58ce70/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/9aafc7f5045640f04938944bbdf3b7eb2635c820/lith.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -775,13 +775,13 @@ If the input is invalid, lith will print an error through teishi.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 250 lines long.
+The complete source code is contained in `lith.js`. It is about 260 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.2.0
+lith - v4.4.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -817,10 +817,10 @@ This is the most succinct form I found to export an object containing all the pu
    else        var lith = window.lith = {};
 ```
 
-We create an alias to `teishi.t`, the function for finding out the type of an element.
+We create an alias to `teishi.t`, the function for finding out the type of an element. We do the same for `teishi.l`, a function for printing logs that also returns `false`.
 
 ```javascript
-   var type = teishi.t;
+   var type = teishi.t, log = teishi.l;
 ```
 
 ### Constants
@@ -967,10 +967,17 @@ Contents can be any lithbag element: string, integer, float, array and undefined
             ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
 ```
 
+In case a validation error was found, we will print an informative error. Note we print both the error and the original input, which provides more context.
+
+```javascript
+         ], function (error) {
+            log ('lith.v - Invalid lith', {error: error, 'original input': input});
+```
+
 Those are all the requirements for a valid lith. If it turns out to be valid, we will return the string `'Lith'`, otherwise we will return `false`. After we do that, we also close the conditional.
 
 ```javascript
-         ]) ? 'Lith' : false;
+         }) ? 'Lith' : false;
       }
 ```
 
@@ -984,16 +991,20 @@ We check that `input` has a type matching those of a valid lithbag element.
 
 ```javascript
          ['lithbag', inputType, lith.k.lithbagElements, 'oneOf', teishi.test.equal],
+         [inputType === 'array', ['lithbag elements', input, lith.k.lithbagElements, 'eachOf']]
 ```
 
+In case a validation error was found, we will print an informative error. Note we print both the error and the original input, which provides more context.
+
 ```javascript
-         [inputType === 'array', ['lithbag element', input, lith.k.lithbagElements, 'eachOf']]
+      ], function (error) {
+         log ('lith.v - Invalid lithbag', {error: error, 'original input': input});
 ```
 
 Depending on whether the validation was successful or not, we return either `'Lithbag'` or `false`. After this, there's nothing else to do, so we close the function.
 
 ```javascript
-      ]) ? 'Lithbag' : false;
+      }) ? 'Lithbag' : false;
    }
 ```
 
@@ -1009,6 +1020,12 @@ We now define `lith.g`, the main function of the library. This library takes an 
 
 ```javascript
       if (prod || lith.prod) {
+```
+
+We check that if either of `prod` or `lith.prod` are truthy, they are indeed `true`. We want to avoid a common usage error where multiple parameters are passed to `lith.g` in the hope of generating all of them - `lith.g` only accepts one `input`, and multiple parameters must be wrapped in an array. With this check, we prevent this error, which is compounded by the fact that validation is unwittingly turned off if a truthy second argument is passed.
+
+```javascript
+         if ((prod || lith.prod) !== true) return log ('lith.g', 'prod or lith.prod must be true or undefined.');
 ```
 
 If we're here, bring on the `prod mode`. This means that *we will assume that `input` is either a valid lith or a valid lithbag*. We quickly determine whether `input` is a lith or not. For this we check that `input` is indeed an array with a valid HTML tag as its first element.
@@ -1245,10 +1262,12 @@ Unlike `lith.v`, `lith.css.v` will hold all the validation logic in itself, inst
    lith.css.v = function (input) {
 ```
 
-Either `litcs` or `litcbags` have to be arrays. We validate this and return `false` if it's not the case.
+Either `litcs` or `litcbags` have to be arrays. We validate this and return `false` if it's not the case. Note we print an error message in case of error.
 
 ```javascript
-      if (teishi.stop (['litc or litcbag', input, 'array'])) return false;
+      if (teishi.stop (['litc or litcbag', input, 'array'], function (error) {
+         log ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
+      })) return false;
 ```
 
 If the array has length zero, we consider it an empty litcbag, so we return `true`.
@@ -1289,10 +1308,12 @@ We ensure that the selector is a string, we validate the attributes with a helpe
          [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
 ```
 
-We close the `teishi.v` call and the function, since there's nothing else to do.
+In case of error, we print a message. We close the `teishi.v` call and the function, since there's nothing else to do.
 
 ```javascript
-      ]);
+      ], function (error) {
+         log ('lith.css.v - Invalid litc', {error: error, 'original input': input});
+      });
    }
 ```
 
