@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.4.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.4.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -99,20 +99,22 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/9135a9699d53aac1eccc33becb31e7d402a52214/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/9781a179ed2d5abce8d6383edc19f345db58ce70/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/8373f4957bbbb3efee0bd2ad607cd666aad0c64c/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/dale/bfd9e2830e733ff8c9d97fd9dd5473b4ff804d4c/dale.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/f0999bdc2db5d42a7e5c71a016f3dd594996f92f/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
 
 lith is pure ES5 javascript and it should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility is as follows:
 
-- Chrome 15 and above.
-- Firefox 22 and above.
-- Safari 5.1 and above.
-- IE9 and above.
-- Opera 11.6 and above.
+- Chrome 15 (released 2011/10/25) and above.
+- Firefox 22 (released 2013/02/23) and above.
+- Safari 5.1 (released 2011/07/20) and above.
+- Internet Explorer 9 (released 2011/03/14) and above.
+- Microsoft Edge 14 (released 2016/02/19) and above.
+- Opera 11.6 (released 2011/12/07) and above.
+- Yandex 14.12 (released 2014/12/11) and above.
 
 The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
 
@@ -781,7 +783,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.4.0
+lith - v4.4.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
