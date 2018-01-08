@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.4.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.4.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -100,8 +100,8 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/bfd9e2830e733ff8c9d97fd9dd5473b4ff804d4c/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/f0999bdc2db5d42a7e5c71a016f3dd594996f92f/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/b593bdd7440a04c22d6eae470d82e17512b52744/lith.js"></script>
+<script src="https://cdn.rawgit.com/fpereiro/teishi/f6da2ec45354300649e511cf5596365bfe157f13/teishi.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -783,7 +783,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.4.1
+lith - v4.4.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
