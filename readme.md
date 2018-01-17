@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.4.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.5.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -101,7 +101,7 @@ Or you can use these links to use the latest version - courtesy of [RawGit](http
 ```html
 <script src="https://cdn.rawgit.com/fpereiro/dale/bfd9e2830e733ff8c9d97fd9dd5473b4ff804d4c/dale.js"></script>
 <script src="https://cdn.rawgit.com/fpereiro/teishi/f6da2ec45354300649e511cf5596365bfe157f13/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/d9b5225889aa4071361163529662120e5cee28b1/lith.js"></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -775,6 +775,8 @@ If the input to lith is invalid, `false` is returned. Otherwise, you get a strin
 
 If the input is invalid, lith will print an error through teishi.
 
+If the input to `lith.g` contains anywhere a lith of the following form: `['style', ['div.canvas', {color: 'blue'}]]` (where the second element is an array and presumably a litc), `lith.g` will automatically invoke `lith.css.g` on the litc. The example above, when passed to `lith.g`, will generate `'<style>div.canvas{color:blue;}</style>`. If the contents are an array that is not a valid litc, the entire input will be considered invalid.
+
 ## Source code
 
 The complete source code is contained in `lith.js`. It is about 260 lines long.
@@ -783,7 +785,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.4.2
+lith - v4.5.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -1199,17 +1201,17 @@ If the contents of the lith are an array (which means that it must be either a l
       if (type (contents) === 'array') {
 ```
 
-If we're in `prod mode`, we simply invoke `lith.g` and concatenate its result to `output`.
+If we're in `prod mode`, we will apply either `lith.g` or `lith.css.g` to `contents` and concatenate the result to `output`. We'll invoke `lith.css.g` only if the tag is `style` (otherwise we will consider `contents` to be either a lith or lithbag).
 
 ```javascript
-         if (prod) output += lith.g (contents, prod);
+         if (prod) output += input [0] === 'style' ? lith.css.g (contents) : lith.g (contents, prod);
 ```
 
-Otherwise, we will call `lith.g` and store its result in a variable `recursiveOutput`.
+Otherwise, we will call `lith.g` (or `lith.css.g` if we're dealing with a litc) and store its result in a variable `recursiveOutput`.
 
 ```
          else {
-            var recursiveOutput = lith.g (contents);
+            var recursiveOutput = input [0] === 'style' ? lith.css.g (contents) : lith.g (contents);
 ```
 
 If the call returns `false`, we return `false` as well - the output generated so far will be ignored, because the lith is invalid.

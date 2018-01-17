@@ -1,6 +1,6 @@
 {
    "name": "lith",
-   "version": "4.4.2",
+   "version": "4.5.0",
    "description": "Tool for generating HTML and CSS from javascript object literals.",
    "dependencies": {
       "dale": "4.3.1",

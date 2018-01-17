@@ -1,5 +1,5 @@
 /*
-lith - v4.4.2
+lith - v4.5.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -140,9 +140,9 @@ Please refer to readme.md to read the annotated source.
       output += '>';
 
       if (type (contents) === 'array') {
-         if (prod) output += lith.g (contents, prod);
+         if (prod) output += input [0] === 'style' ? lith.css.g (contents) : lith.g (contents, prod);
          else {
-            var recursiveOutput = lith.g (contents);
+            var recursiveOutput = input [0] === 'style' ? lith.css.g (contents) : lith.g (contents);
             if (recursiveOutput === false) return false;
             output += recursiveOutput;
          }

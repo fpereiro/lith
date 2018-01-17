@@ -43,7 +43,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ['head', [
                ['meta', {charset: 'utf-8'}],
                ['title', 'lith test'],
-               ['style', lith.css.g ([
+               ['style', [
                   cssReset,
                   ['body', {padding: 10}],
                   ['textarea', {
@@ -69,7 +69,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                   ['textarea#outputText', {
                      'background-color': '#DDDDDD'
                   }]
-               ])],
+               ]],
             ]],
             ['body', [
                ['div', {class: 'main'}, [
@@ -121,7 +121,12 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ['p', {}, 2, 3],
             ['p', {class: NaN}],
             ['p', NaN],
-            [NaN]
+            [NaN],
+            ['style', ['not', 'a', 'litc']],
+            ['div', [
+               ['style', [2]],
+               ['p', 'something']
+            ]]
          ], function (v) {
             if (lith.g (v) !== false) throw new Error ('Invalid input accepted.');
          });
@@ -226,6 +231,14 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                ['script', {src: 'scripts.js', charset: 'utf-8'}],
                '<script src="scripts.js" charset="utf-8"></script>'
             ],
+            [
+               ['style', ['span.action', {color: 'blue'}]],
+               '<style>span.action{color:blue;}</style>'
+            ],
+            [
+               ['style', lith.css.g (['span.action', {color: 'blue'}])],
+               '<style>span.action{color:blue;}</style>'
+            ]
          ], function (v) {
             if (lith.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);
          });
