@@ -1,5 +1,5 @@
 /*
-lith - v4.5.1
+lith - v4.5.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -36,8 +36,8 @@ Please refer to readme.md to read the annotated source.
 
    // *** HELPER FUNCTIONS ***
 
-   lith.entityify = function (string) {
-      if (teishi.stop ('lith.entityify', ['Entityified string', string, 'string'])) return false;
+   lith.entityify = function (string, prod) {
+      if (! prod && teishi.stop ('lith.entityify', ['Entityified string', string, 'string'])) return false;
 
       return string
          .replace (/&/g, '&amp;')
@@ -110,7 +110,7 @@ Please refer to readme.md to read the annotated source.
 
          var typeV = type (v);
 
-         if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + ''));
+         if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + '', prod));
 
          if (prod) output += lith.g (v, prod);
          else {
@@ -134,7 +134,7 @@ Please refer to readme.md to read the annotated source.
       var output = '<' + input [0];
 
       dale.do (attributes, function (v, k) {
-         if (v || v === 0) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v || v === 0) output += ' ' + lith.entityify (k + '', prod) + '="' + lith.entityify (v + '', prod) + '"';
       });
 
       output += '>';

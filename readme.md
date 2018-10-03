@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.5.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, these are no future changes planned.
+The current version of lith, v4.5.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -99,9 +99,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to use the latest version - courtesy of [RawGit](https://rawgit.com) and [MaxCDN](https://maxcdn.com).
 
 ```html
-<script src="https://cdn.rawgit.com/fpereiro/dale/bfd9e2830e733ff8c9d97fd9dd5473b4ff804d4c/dale.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/teishi/60448b5612f7f10f008bffdfedbd6c9c93cf2256/teishi.js"></script>
-<script src="https://cdn.rawgit.com/fpereiro/lith/a0a21ffeb418fa457bf682f3ce749f046ae82472/lith.js"></script>
+<script src=""></script>
+<script src=""></script>
+<script src=""></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -785,7 +785,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.5.1
+lith - v4.5.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -876,9 +876,11 @@ Every time I modify the tag constants, I run this code to ensure that there are 
 
 This function was originally taken from [Douglas Crockford's `entityify`](http://javascript.crockford.com/remedial.html) and modified to replace quotes and backticks, using the approach in [John-David Dalton's lodash](https://github.com/lodash/lodash/blob/93b1e1f5ac72fad0507fc551704b88082a49fa48/lodash.js#L224).
 
+Notice we validate the input but only if the second argument is falsy. When `prod mode` is on, we avoid the validation to improve performance.
+
 ```javascript
-   lith.entityify = function (string) {
-      if (teishi.stop ('lith.entityify', ['Entityified string', string, 'string'])) return false;
+   lith.entityify = function (string, prod) {
+      if (! prod && teishi.stop ('lith.entityify', ['Entityified string', string, 'string'])) return false;
 
       return string
          .replace (/&/g, '&amp;')
@@ -1106,7 +1108,7 @@ Depending on whether `dontEntityify` is truthy or not, we entityify the element.
 Notice that we coerce `v` into a string before entityifying it, because it may be a number and `lith.entityify` only accepts strings.
 
 ```javascript
-         if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + ''));
+         if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + '', prod));
 ```
 
 If we're here, the lithbag is an array. we will do a recursive call to `lith.g`. If we're in `prod mode`, we will simply call `lith.g` and concatenate its result to `output`.
@@ -1185,7 +1187,7 @@ For every attribute which has a proper value, we will concatenate it onto `outpu
 Mind that we entityify both the key and the value. Also mind that we use double quotes for enclosing the value. Finally, notice that we coerce `k` and `v` into strings before passing them to `lith.entityify`.
 
 ```javascript
-         if (v || v === 0) output += ' ' + lith.entityify (k + '') + '="' + lith.entityify (v + '') + '"';
+         if (v || v === 0) output += ' ' + lith.entityify (k + '', prod) + '="' + lith.entityify (v + '', prod) + '"';
       });
 ```
 
