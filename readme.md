@@ -101,7 +101,7 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@ac36810de20ee18d5d5077bd2ccb94628d621e58/dale.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@be190633770702ae0b788825cbc8a6cc4a88372d/teishi.js></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@   /lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@84494dfc31903c1d5b22a76ab36ee9a167c9cdec/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
