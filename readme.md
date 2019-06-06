@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.5.3, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v4.6.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -100,8 +100,8 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@ac36810de20ee18d5d5077bd2ccb94628d621e58/dale.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@e1d6313b4269c54d163ac2097d6713d9e9e3f213/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@d1b5b3f9e7207383c335108541cf6942db84adaa/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@be190633770702ae0b788825cbc8a6cc4a88372d/teishi.js></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@   /lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -299,9 +299,7 @@ The performance gains of `prod mode` will be only noticeable if you're generatin
 You can use `prod mode` in two ways:
 
 - Locally, by passing a `true` second parameter to an invocation of `lith.g`.
-- Globally, by setting `lith.prod` to `true`. This will affect every subsequent invocation of `lith.g`.
-
-Notice that `prod mode` only affects `lith.g` and not `lith.css.g`. The reasons are two: 1) validation of litcs is less expensive than validation of liths; and 2) it is unlikely that the amount of CSS that you need to generate will be enough to create a performance issue. If, however, you have an use case for this, please [open an issue](https://github.com/fpereiro/lith/issues) and I will consider it.
+- Globally, by setting `lith.prod` to `true`. This will affect every subsequent invocation of `lith.g`. Even if you pass a falsy second argument to `lith.g`, `prod` mode will still be active if you set `lith.prod` to `true`.
 
 ## litcs
 
@@ -760,6 +758,24 @@ var litc = [
 
 If you passed valid arguments to `lith.css.media`, the output will always be a litc, which you can use standalone or nest within another one.
 
+Finally, if you want to pass a style attribute to a given element, you can use `lith.style`. This function takes one or two arguments: an optional `attributes` object (which is a list of lith attributes), and a object with litc attributes which is always required. Let's see some examples
+
+```javascript
+// This invocation:
+lith.style ({color: 'red', margin: 'solid 1px white'});
+
+// will generate this object:
+{style: 'color:red;margin:solid 1px white;'}
+
+// This invocation:
+lith.style ({onsubmit: 'thunderstruck ()'}, {'height, width': 1}),
+
+// will generate this object:
+{style: 'height:100%;width:100%;', onsubmit: 'thunderstruck ()'},
+```
+
+If the lith attribute or the litc attribute are invalid, `lith.style` will print an error and return `false`.
+
 ### Litc usage
 
 litcs are generated using two core functions:
@@ -777,15 +793,17 @@ If the input is invalid, lith will print an error through teishi.
 
 If the input to `lith.g` contains anywhere a lith of the following form: `['style', ['div.canvas', {color: 'blue'}]]` (where the second element is an array and presumably a litc), `lith.g` will automatically invoke `lith.css.g` on the litc. The example above, when passed to `lith.g`, will generate `'<style>div.canvas{color:blue;}</style>`. If the contents are an array that is not a valid litc, the entire input will be considered invalid.
 
+As with `lith.g`, if you pass `true` as a second argument to `lith.css.g`, `prod mode` will be enabled and no validations will be performed. This will also happen if you set `lith.prod` to `true`.
+
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 260 lines long.
+The complete source code is contained in `lith.js`. It is about 270 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.5.3
+lith - v4.6.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -1111,27 +1129,21 @@ Notice that we coerce `v` into a string before entityifying it, because it may b
          if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + '', prod));
 ```
 
-If we're here, the lithbag is an array. we will do a recursive call to `lith.g`. If we're in `prod mode`, we will simply call `lith.g` and concatenate its result to `output`.
+If we're here, the lithbag is an array. we will do a recursive call to `lith.g`.
 
-```javascript
-         if (prod) output += lith.g (v, prod);
-```
-
-If `prod` is not enabled, we need to consider the possibility that `lithbag` ins invalid. We will call `lith.g` and store the value of this recursive call into a local variable `recursiveOutput`.
+We will call `lith.g` and store the value of this recursive call into a local variable `recursiveOutput`. Note we pass `prod` as a parameter.
 
 If `recursiveOutput` is `false`, we will return `false` from this inner function, which will in turn also make `lith.generateLithbag` and `lith.g` return `false`. The relevant error message will already have been printed by the recursive call to `lith.g`.
 
 ```javascript
-         else {
-            var recursiveOutput = lith.g (v, prod);
-            if (recursiveOutput === false) return false;
+         var recursiveOutput = lith.g (v, prod);
+         if (recursiveOutput === false) return false;
 ```
 
 If the `recursiveOutput` is valid, it will be a string. We will concatenate it to the `output`.
 
 ```javascript
-            else output += recursiveOutput;
-         }
+         output += recursiveOutput;
 ```
 
 If the call to `dale.stop` returned `false`, we found an invalid (array) lithbag, so we return `false`.
@@ -1143,7 +1155,7 @@ If the call to `dale.stop` returned `false`, we found an invalid (array) lithbag
 If we are here, no errors were found, which means that `lithbag` was valid. We return `output` and close the function.
 
 ```javascript
-      else return output;
+      return output;
    }
 ```
 
@@ -1203,17 +1215,10 @@ If the contents of the lith are an array (which means that it must be either a l
       if (type (contents) === 'array') {
 ```
 
-If we're in `prod mode`, we will apply either `lith.g` or `lith.css.g` to `contents` and concatenate the result to `output`. We'll invoke `lith.css.g` only if the tag is `style` (otherwise we will consider `contents` to be either a lith or lithbag).
-
-```javascript
-         if (prod) output += input [0] === 'style' ? lith.css.g (contents) : lith.g (contents, prod);
-```
-
-Otherwise, we will call `lith.g` (or `lith.css.g` if we're dealing with a litc) and store its result in a variable `recursiveOutput`.
+We will apply either `lith.g` or `lith.css.g` to `contents`. We'll invoke `lith.css.g` only if the tag is `style` (otherwise we will consider `contents` to be either a lith or lithbag). We'll store its result in a variable `recursiveOutput`. Note we pass `prod` as a parameter to both functions.
 
 ```
-         else {
-            var recursiveOutput = input [0] === 'style' ? lith.css.g (contents) : lith.g (contents);
+         var recursiveOutput = input [0] === 'style' ? lith.css.g (contents, prod) : lith.g (contents, prod);
 ```
 
 If the call returns `false`, we return `false` as well - the output generated so far will be ignored, because the lith is invalid.
@@ -1221,9 +1226,8 @@ If the call returns `false`, we return `false` as well - the output generated so
 Otherwise, we concatenate the result of the call onto `output`.
 
 ```javascript
-            if (recursiveOutput === false) return false;
-            output += recursiveOutput;
-         }
+         if (recursiveOutput === false) return false;
+         output += recursiveOutput;
       }
 ```
 
@@ -1342,18 +1346,37 @@ We then close the call and the function.
 
 ### Litc generation
 
-`lith.css.g` is analogue to `lith.g`: it takes an `input`, presumably a litc or litcbag, and returns either `false` or a string with CSS.
+`lith.css.g` is analogue to `lith.g`: it takes an `input`, presumably a litc or litcbag, and returns either `false` or a string with CSS. This function also takes a `prod` argument to indicate `prod mode`.
 
 This function also takes a "private" argument `selector`, used in recursive calls.
 
 ```javascript
-   lith.css.g = function (input, selector) {
+   lith.css.g = function (input, prod, selector) {
 ```
 
-We invoke `lith.css.v`. If it returns `false`, the `input` is invalid, so we just return `false`.
+`prod mode` is an option that makes `lith.css.g` not validate its input. If either `lith.prod` is set to a truthy value (or a truthy value is passed as the second argument to `lith.css.g`, we will consider that `prod mode` is enabled.
 
 ```javascript
-      if (lith.css.v (input) === false) return false;
+      if (prod || lith.prod) {
+```
+
+We check that if either of `prod` or `lith.prod` are truthy, they are indeed `true`. As with `lith.g`, we want to avoid a common usage error where multiple parameters are passed to `lith.css.g` in the hope of generating all of them - `lith.css.g` only accepts one `input`, and multiple parameters must be wrapped in an array. With this check, we prevent this error, which is compounded by the fact that validation is unwittingly turned off if a truthy second argument is passed.
+
+```javascript
+         if ((prod || lith.prod) !== true) return log ('lith.css.g', 'prod or lith.prod must be true or undefined.');
+```
+
+We set `prod` to `true`, in case we're in this part of the conditional because of `lith.prod` being `true`.
+
+```javascript
+         prod = true;
+      }
+```
+
+If `prod` is not enabled, we invoke `lith.css.v`. If it returns `false`, the `input` is invalid, so we just return `false`.
+
+```javascript
+      if (! prod && lith.css.v (input) === false) return false;
 ```
 
 If `input` is an empty array, we consider it to be an empty litcbag. We return an empty string.
@@ -1393,7 +1416,7 @@ If `recursiveOutput` is `false` (because `v` was neither a valid litc or litcbag
 If `recursiveOutput` is not `false`, we concatenate it to `output`.
 
 ```javascript
-            var recursiveOutput = lith.css.g (v, selector);
+            var recursiveOutput = lith.css.g (v, prod, selector);
             if (recursiveOutput === false) return false;
             output += recursiveOutput;
 ```
@@ -1407,7 +1430,7 @@ If the iteration returned `false`, it's because we found an error, so we return 
 If the iteration did not return `false`, we return the `output`.
 
 ```javascript
-         else return output;
+         return output;
       }
 ```
 
@@ -1595,7 +1618,7 @@ If the litc has contents, we process them.
 We make a recursive call to `lith.css.g`, passing the contents of the litc and the selector. We store that value in a local variable `recursiveOutput`.
 
 ```javascript
-         var recursiveOutput = lith.css.g (contents, selector);
+         var recursiveOutput = lith.css.g (contents, prod, selector);
 ```
 
 If the recursive call returned `false`, the contents of the litc are invalid, so the whole litc is invalid. We return `false`.
@@ -1607,7 +1630,7 @@ If the recursive call returned `false`, the contents of the litc are invalid, so
 If the recursive call returned valid output, we concatenate it to the `output`.
 
 ```javascript
-         else output += recursiveOutput;
+         output += recursiveOutput;
       }
 ```
 
@@ -1633,6 +1656,51 @@ Note that we add `'@media' ` at the beginning of the selector. Note also that th
 
 ```javascript
       return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
+   }
+```
+
+We now define `lith.style`, a helper function that is useful to generate lith attributes with inline style.
+
+This function can take one or two arguments. We will do argument detection inside the function.
+
+```javascript
+   lith.style = function () {
+```
+
+If `lith.style` receives two arguments, we will consider its first argument to be a lith attributes object, which we'll place in a local variable `attributes`. Otherwise, we expect the function to receive a single argument, in which case we will initialize `attributes` to an empty object.
+
+```javascript
+      var attributes = arguments.length === 2 ? arguments [0] : {};
+```
+
+If `attributes` is not an object, we will print an error and return `false`.
+
+```javascript
+      if (type (attributes) !== 'object') return log ('Invalid lith attributes passed to lith.style', attributes);
+```
+
+We will take the last argument passed to the function (which contains the expected litc attributes we want to place into a style attribute) and pass it to `lith.css.g`, passing an empty selector. We will set the result of this to `attributes.style`.
+
+```javascript
+      attributes.style = lith.css.g (['', teishi.last (arguments)]);
+```
+
+If `attributes.style` is `false`, this means that the litc selector we passed to `lith.css.g` is invalid. We print an error and return `false`.
+
+```javascript
+      if (attributes.style === false) return log ('Invalid style attributes passed to lith.style', teishi.last (arguments));
+```
+
+We remove the opening and closing braces from `attributes.style`.
+
+```javascript
+      attributes.style = attributes.style.slice (1, -1);
+```
+
+We return `attributes` and close the function.
+
+```javascript
+      return attributes;
    }
 ```
 

@@ -1,5 +1,5 @@
 /*
-lith - v4.5.3
+lith - v4.6.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -112,12 +112,9 @@ Please refer to readme.md to read the annotated source.
 
          if (type (v) !== 'array') return output += (dontEntityify ? v : lith.entityify (v + '', prod));
 
-         if (prod) output += lith.g (v, prod);
-         else {
-            var recursiveOutput = lith.g (v, prod);
-            if (recursiveOutput === false) return false;
-            else output += recursiveOutput;
-         }
+         var recursiveOutput = lith.g (v, prod);
+         if (recursiveOutput === false) return false;
+         output += recursiveOutput;
 
       }) === false) return false;
 
@@ -140,12 +137,9 @@ Please refer to readme.md to read the annotated source.
       output += '>';
 
       if (type (contents) === 'array') {
-         if (prod) output += input [0] === 'style' ? lith.css.g (contents) : lith.g (contents, prod);
-         else {
-            var recursiveOutput = input [0] === 'style' ? lith.css.g (contents) : lith.g (contents);
-            if (recursiveOutput === false) return false;
-            output += recursiveOutput;
-         }
+         var recursiveOutput = input [0] === 'style' ? lith.css.g (contents, prod) : lith.g (contents, prod);
+         if (recursiveOutput === false) return false;
+         output += recursiveOutput;
       }
       else output += lith.generateLithbag (contents, ((input [0] === 'style' || input [0] === 'script') ? true : false), prod);
 
@@ -190,9 +184,13 @@ Please refer to readme.md to read the annotated source.
 
    // *** LITC GENERATION ***
 
-   lith.css.g = function (input, selector) {
+   lith.css.g = function (input, prod, selector) {
 
-      if (lith.css.v (input) === false) return false;
+      if (prod || lith.prod) {
+         if ((prod || lith.prod) !== true) return log ('lith.css.g', 'prod or lith.prod must be true or undefined.');
+         prod = true;
+      }
+      if (! prod && lith.css.v (input) === false) return false;
 
       if (input.length === 0) return '';
 
@@ -202,11 +200,11 @@ Please refer to readme.md to read the annotated source.
 
       if (type (input [0]) === 'array') {
          if (dale.stop (input, false, function (v, k) {
-            var recursiveOutput = lith.css.g (v, selector);
+            var recursiveOutput = lith.css.g (v, prod, selector);
             if (recursiveOutput === false) return false;
             output += recursiveOutput;
          }) === false) return false;
-         else return output;
+         return output;
       }
 
       if (selector === undefined) selector = '';
@@ -242,9 +240,9 @@ Please refer to readme.md to read the annotated source.
       output += '}';
 
       if (contents) {
-         var recursiveOutput = lith.css.g (contents, selector);
+         var recursiveOutput = lith.css.g (contents, prod, selector);
          if (recursiveOutput === false) return false;
-         else output += recursiveOutput;
+         output += recursiveOutput;
       }
 
       return output;
@@ -255,6 +253,17 @@ Please refer to readme.md to read the annotated source.
    lith.css.media = function (selector, litc) {
       if (teishi.stop (['selector', selector, 'string'])) return false;
       return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
+   }
+
+   // *** STYLE HELPER ***
+
+   lith.style = function () {
+      var attributes = arguments.length === 2 ? arguments [0] : {};
+      if (type (attributes) !== 'object') return log ('Invalid lith attributes passed to lith.style', attributes);
+      attributes.style = lith.css.g (['', teishi.last (arguments)]);
+      if (attributes.style === false) return log ('Invalid style attributes passed to lith.style', teishi.last (arguments));
+      attributes.style = attributes.style.slice (1, -1);
+      return attributes;
    }
 
 }) ();

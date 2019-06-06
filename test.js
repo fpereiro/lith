@@ -1,5 +1,5 @@
 /*
-lith - v4.5.3
+lith - v4.6.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -398,9 +398,46 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             [
                lith.css.media ('(max-width: 600px)', ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]),
                '@media (max-width: 600px) {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
-            ]
+            ],
          ], function (v) {
             if (lith.css.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);
+         });
+
+         dale.do ([
+            [
+               lith.style ({'height, width': 1}),
+               {style: 'height:100%;width:100%;'},
+            ],
+            [
+               lith.style ({onsubmit: 'thunderstruck ()'}, {'height, width': 1}),
+               {style: 'height:100%;width:100%;', onsubmit: 'thunderstruck ()'},
+            ],
+            [
+               lith.style ({class: 'struggle'}, {color: 'red', margin: 'solid 1px white'}),
+               {style: 'color:red;margin:solid 1px white;', class: 'struggle'}
+            ],
+            [
+               lith.style ({class: 'vamo'}, {}),
+               {style: '', class: 'vamo'}
+            ],
+            [
+               lith.style ({class: 'vamo'}, []),
+               {style: '', class: 'vamo'}
+            ],
+            [
+               lith.style ({class: 'vamo'}, /ern/),
+               false
+            ],
+            [
+               lith.style (/ern/, {color: 'blue'}),
+               false
+            ],
+            [
+               lith.style (/ern/),
+               false
+            ]
+         ], function (v, k) {
+            if (! teishi.eq (v [0], v [1])) throw new Error ('A test failed! ' + v [1]);
          });
 
          teishi.l ('Finished', 'All tests ran successfully!');
