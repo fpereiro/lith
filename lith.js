@@ -1,5 +1,5 @@
 /*
-lith - v4.6.0
+lith - v5.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -54,7 +54,7 @@ Please refer to readme.md to read the annotated source.
 
       var inputType = type (input);
 
-      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) !== -1) {
+      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) > -1) {
 
          var attributes = type (input [1]) === 'object' ? input [1] : undefined;
          var contents   = input [attributes ? 2 : 1];
@@ -89,7 +89,7 @@ Please refer to readme.md to read the annotated source.
 
       if (prod || lith.prod) {
          if ((prod || lith.prod) !== true) return log ('lith.g', 'prod or lith.prod must be true or undefined.');
-         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) !== -1) {
+         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
             return lith.generateLith (input, true);
          }
          return lith.generateLithbag (input, false, true);
@@ -130,7 +130,7 @@ Please refer to readme.md to read the annotated source.
 
       var output = '<' + input [0];
 
-      dale.do (attributes, function (v, k) {
+      dale.go (attributes, function (v, k) {
          if (v || v === 0) output += ' ' + lith.entityify (k + '', prod) + '="' + lith.entityify (v + '', prod) + '"';
       });
 
@@ -212,8 +212,8 @@ Please refer to readme.md to read the annotated source.
       var attributes = type (input [1]) === 'object' ? input [1] : undefined;
       var contents   = input [attributes ? 2 : 1];
 
-      selector = dale.do (selector.split (/,\s*/), function (v) {
-         return dale.do (input [0].split (/,\s*/), function (v2) {
+      selector = dale.go (selector.split (/,\s*/), function (v) {
+         return dale.go (input [0].split (/,\s*/), function (v2) {
             if (v2.match (/&/)) return v2.replace ('&', v);
             else                return v + (v.length === 0 ? '' : ' ') + v2;
          }).join (', ');
@@ -229,7 +229,7 @@ Please refer to readme.md to read the annotated source.
             if (typeV === 'object') return addAttributes (v);
             if (typeV === 'integer' && (v < 0 || v > 1)) v += 'px';
             if (typeV === 'float' || v === 1) v = (v * 100) + '%';
-            dale.do (k.split (/,\s*/), function (v2) {
+            dale.go (k.split (/,\s*/), function (v2) {
                output += v2 + ':' + v + ';';
             });
          });

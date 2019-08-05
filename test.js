@@ -1,5 +1,5 @@
 /*
-lith - v4.6.0
+lith - v5.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -72,23 +72,24 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                ]],
             ]],
             ['body', [
-               ['div', {class: 'main'}, [
+               ['div', {'class': 'main'}, [
                   ['label', 'lith input - insert a valid lith below'],
-                  ['textarea', {id: 'inputLith', onchange: 'recalc ()', onkeydown: 'recalc ()', onkeyup: 'recalc ()'}],
+                  ['textarea', {id: 'inputLith', onchange: 'window.recalc ()', onkeydown: 'window.recalc ()', onkeyup: 'window.recalc ()'}],
                   ['label', 'litc input - insert a valid litc below'],
-                  ['textarea', {id: 'inputLitc', onchange: 'recalc ()', onkeydown: 'recalc ()', onkeyup: 'recalc ()'}],
+                  ['textarea', {id: 'inputLitc', onchange: 'window.recalc ()', onkeydown: 'window.recalc ()', onkeyup: 'window.recalc ()'}],
                   ['label', 'Output (will only change if you wrote a valid lith + litc above)'],
                   ['textarea', {readonly: 'readonly', id: 'outputText'}],
                ]],
-               ['div', {class: 'main'}, [
+               ['div', {'class': 'main'}, [
                   ['label', 'Div containing HTML output (will only change if you wrote a valid lith + litc)'],
                   ['LITERAL', '<div id="output"></div>']
                ]],
-               dale.do ([
+               dale.go ([
                   'node_modules/dale/dale.js',
                   'node_modules/teishi/teishi.js',
                   'lith.js',
                   'test.js'
+
                ], function (v) {
                   return ['script', {src: v}]
                })
@@ -115,11 +116,11 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
          // *** README EXAMPLES ***
 
-         dale.do ([
+         dale.go ([
             /a/,
             ['p', 222, 222],
             ['p', {}, 2, 3],
-            ['p', {class: NaN}],
+            ['p', {'class': NaN}],
             ['p', NaN],
             [NaN],
             ['style', ['not', 'a', 'litc']],
@@ -137,7 +138,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          if (lith.g (['p']) !== false) throw new Error ('Invalid lith.prod parameter accepted.');
          lith.prod = undefined;
 
-         dale.do ([
+         dale.go ([
             /a/,
             ['p', {}, [], []],
             ['p', [], []],
@@ -149,19 +150,19 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             if (lith.css.g (v) !== false) throw new Error ('Invalid input accepted.');
          });
 
-         dale.do ([
+         dale.go ([
             [['br'], '<br>'],
             [
-               ['p', {id: 'p3', class: 'remark'}, 'This is a remark'],
+               ['p', {id: 'p3', 'class': 'remark'}, 'This is a remark'],
                '<p id="p3" class="remark">This is a remark</p>'
             ],
             [
-               ['div', {id: 'container'}, ['p', {class: 'remark'}, 'This is a remark']],
+               ['div', {id: 'container'}, ['p', {'class': 'remark'}, 'This is a remark']],
                '<div id="container"><p class="remark">This is a remark</p></div>'
             ],
             [
-               ['table', [['A1', 'B1'], ['A2', 'B2']].map (function (v, k) {
-                  return ['tr', {id: 'row' + (k + 1)}, v.map (function (v2) {
+               ['table', dale.go ([['A1', 'B1'], ['A2', 'B2']], function (v, k) {
+                  return ['tr', {id: 'row' + (k + 1)}, dale.go (v, function (v2) {
                      return ['td', v2];
                   })];
                })],
@@ -199,12 +200,12 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
                   function createRows (data) {
                      var output = [];
-                     for (var datum in data) {
+                     dale.go (data, function (v) {
                         output.push (['tr', [
-                           ['td', data [datum].id],
-                           ['td', data [datum].name],
+                           ['td', v.id],
+                           ['td', v.name],
                         ]]);
-                     }
+                     });
                      return output;
                   }
 
@@ -243,7 +244,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             if (lith.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);
          });
 
-         dale.do ([
+         dale.go ([
             [
                ['div.links', {width: .50, height: .50}],
                'div.links{width:50%;height:50%;}'
@@ -337,7 +338,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                   return [
                      ['a', {
                         color: 'lime',
-                        fontProperties: fontProperties,
+                        fontProperties: fontProperties
                      }],
                      ['p', {
                         color: 'gray',
@@ -398,12 +399,12 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             [
                lith.css.media ('(max-width: 600px)', ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]),
                '@media (max-width: 600px) {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
-            ],
+            ]
          ], function (v) {
             if (lith.css.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);
          });
 
-         dale.do ([
+         dale.go ([
             [
                lith.style ({'height, width': 1}),
                {style: 'height:100%;width:100%;'},
@@ -413,19 +414,19 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                {style: 'height:100%;width:100%;', onsubmit: 'thunderstruck ()'},
             ],
             [
-               lith.style ({class: 'struggle'}, {color: 'red', margin: 'solid 1px white'}),
-               {style: 'color:red;margin:solid 1px white;', class: 'struggle'}
+               lith.style ({'class': 'struggle'}, {color: 'red', margin: 'solid 1px white'}),
+               {style: 'color:red;margin:solid 1px white;', 'class': 'struggle'}
             ],
             [
-               lith.style ({class: 'vamo'}, {}),
-               {style: '', class: 'vamo'}
+               lith.style ({'class': 'vamo'}, {}),
+               {style: '', 'class': 'vamo'}
             ],
             [
-               lith.style ({class: 'vamo'}, []),
-               {style: '', class: 'vamo'}
+               lith.style ({'class': 'vamo'}, []),
+               {style: '', 'class': 'vamo'}
             ],
             [
-               lith.style ({class: 'vamo'}, /ern/),
+               lith.style ({'class': 'vamo'}, /ern/),
                false
             ],
             [
@@ -440,7 +441,8 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             if (! teishi.eq (v [0], v [1])) throw new Error ('A test failed! ' + v [1]);
          });
 
-         teishi.l ('Finished', 'All tests ran successfully!');
+         if (isNode) teishi.l ('Finished', 'All tests ran successfully!');
+         else        alert ('All tests passed successfully!');
 
          // *** INTERACTIVE EXAMPLE ***
 
@@ -453,7 +455,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                var result = lith.g ([['style', lith.css.g (css)], html], true);
             }
             catch (error) {
-               console.log (error);
+               log (error);
                document.getElementById ('inputLith').style ['background-color'] = 'rgb(201, 48, 44)';
                document.getElementById ('inputLitc').style ['background-color'] = 'rgb(201, 48, 44)';
             }
@@ -467,10 +469,9 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          }
 
          try {
-            document.getElementById ('inputLith').value = JSON.stringify ([['h2', ['span', 'The word:']], ['a', {id: 'bird', class: null}, 'Surrrrrrrrrrrrfin\' bird']]);
+            document.getElementById ('inputLith').value = JSON.stringify ([['h2', ['span', 'The word:']], ['a', {id: 'bird', 'class': null}, 'Surrrrrrrrrrrrfin\' bird']]);
             document.getElementById ('inputLitc').value = JSON.stringify ([['a', {'font-size': 22, 'font-family': false, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]], ['h2, h3', ['span, strong', {display: 'block', margin: 20, 'font-weight': 'bold'}]]]);
-            document.getElementById ('inputLith').dispatchEvent (new Event ('change', {'bubbles': true}));
-
+            window.recalc ();
          }
          catch (error) {}
 
@@ -478,22 +479,22 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
          var lightmetal = {prod: [], dev: []};
 
-         dale.do (dale.times (5), function () {
+         dale.go (dale.times (5), function () {
 
-            dale.do (['prod', 'dev'], function (v) {
-               var time = Date.now ();
+            dale.go (['prod', 'dev'], function (v) {
+               var time = teishi.time ();
 
-               lith.g (dale.do (dale.times (150), function () {
+               lith.g (dale.go (dale.times (150), function () {
                   return ['input', {value: 'a'}];
                }), v === 'prod');
 
-               lightmetal [v].push (Date.now () - time);
+               lightmetal [v].push (teishi.time () - time);
             });
          });
 
-         dale.do (lightmetal, function (v, k) {
+         dale.go (lightmetal, function (v, k) {
             var sum = 0;
-            dale.do (v, function (v2) {sum += v2});
+            dale.go (v, function (v2) {sum += v2});
             log ('light metal benchmark', sum / 5 + ' ms', k);
          });
 
@@ -504,27 +505,27 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          var i = 0, max = 5000, table = [];
 
          while (i++ < max) {
-            table.push (['td', {class: i}, i]);
+            table.push (['td', {'class': i}, i]);
          }
 
          if (lith.g (table, true) !== lith.g (table)) throw new Error ('dev & prod modes mismatch!');
 
          log ('Starting heavy metal benchmark');
 
-         dale.do (dale.times (5), function () {
+         dale.go (dale.times (5), function () {
 
-            dale.do (['prod', 'dev'], function (v) {
+            dale.go (['prod', 'dev'], function (v) {
 
-               var time = Date.now ();
+               var time = teishi.time ();
                lith.g (table, v === 'prod');
 
-               heavymetal [v].push (Date.now () - time);
+               heavymetal [v].push (teishi.time () - time);
             });
          });
 
-         dale.do (heavymetal, function (v, k) {
+         dale.go (heavymetal, function (v, k) {
             var sum = 0;
-            dale.do (v, function (v2) {sum += v2});
+            dale.go (v, function (v2) {sum += v2});
             log ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms)');
          });
 

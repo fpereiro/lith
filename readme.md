@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v4.6.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v5.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 ## Why lith instead of a template system?
 
@@ -99,22 +99,22 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@ac36810de20ee18d5d5077bd2ccb94628d621e58/dale.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@be190633770702ae0b788825cbc8a6cc4a88372d/teishi.js></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@84494dfc31903c1d5b22a76ab36ee9a167c9cdec/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@9fe30369a2acef87ed062131c8634d858b8f3143/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@8442dc09f0518b93fc9b5fbdf5268d589b7d54fd/teishi.js></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@ /lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
 
-lith is pure ES5 javascript and it should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility is as follows:
+lith should work in any version of node.js (tested in v0.8.0 and above). Browser compatibility has been tested in the following browsers:
 
-- Chrome 15 (released 2011/10/25) and above.
-- Firefox 22 (released 2013/02/23) and above.
-- Safari 5.1 (released 2011/07/20) and above.
-- Internet Explorer 9 (released 2011/03/14) and above.
-- Microsoft Edge 14 (released 2016/02/19) and above.
-- Opera 11.6 (released 2011/12/07) and above.
-- Yandex 14.12 (released 2014/12/11) and above.
+- Google Chrome 15 and above.
+- Mozilla Firefox 3 and above.
+- Safari 4 and above.
+- Internet Explorer 6 and above.
+- Microsoft Edge 14 and above.
+- Opera 10.6 and above.
+- Yandex 14.12 and above.
 
 The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
 
@@ -803,7 +803,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v4.6.0
+lith - v5.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -929,7 +929,7 @@ We first note the type of the input and store it at `inputType`.
 If `input` is an array and its first element is a string which also happens to be a valid HTML tag, we will consider `input` to be a lith! In previous versions of lith, you could write lithbags that started with a valid HTML tag, but it was seldom useful. By explicitly prohibiting it, we can very quickly determine whether `input` is a lith or a lithbag. This also will help to implement a fast `prod mode` when we define `lith.g` later.
 
 ```javascript
-      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) !== -1) {
+      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) > -1) {
 ```
 
 We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `lith`, depending on whether we found `attributes` or not.
@@ -1055,7 +1055,7 @@ We check that if either of `prod` or `lith.prod` are truthy, they are indeed `tr
 If we're here, bring on the `prod mode`. This means that *we will assume that `input` is either a valid lith or a valid lithbag*. We quickly determine whether `input` is a lith or not. For this we check that `input` is indeed an array with a valid HTML tag as its first element.
 
 ```javascript
-         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) !== -1) {
+         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
 ```
 
 If we're here, `input` is a lith. We return an invocation to `lith.generateLith`, passing it both `input` and `true`. The reason we pass a second argument is that because `lith.generateLith` can invoke `lith.g`, we need to preserve the `prod mode` flag in recursive calls.
@@ -1186,10 +1186,10 @@ We create a local variable `output` and place in it an opening angle bracket `<`
       var output = '<' + input [0];
 ```
 
-We iterate the attributes of the lith. If `attributes` is `undefined`, the inner function passed to `dale.do` will not be executed.
+We iterate the attributes of the lith. If `attributes` is `undefined`, the inner function passed to `dale.go` will not be executed.
 
 ```javascript
-      dale.do (attributes, function (v, k) {
+      dale.go (attributes, function (v, k) {
 ```
 
 We will discard all attributes that have a falsy value (empty string, `null`, `undefined` and `false`), with the exception of `0`, which can be a perfectly valid attribute value.
@@ -1470,13 +1470,13 @@ With the following litc:
 We will set the `selector` to the result of this iteration on the parts of the selector.
 
 ```javascript
-      selector = dale.do (selector.split (/,\s*/), function (v) {
+      selector = dale.go (selector.split (/,\s*/), function (v) {
 ```
 
 We will also split `input [0]` by a comma plus whitespace, the selector of the current litc and iterate them.
 
 ```javascript
-         return dale.do (input [0].split (/,\s*/), function (v2) {
+         return dale.go (input [0].split (/,\s*/), function (v2) {
 ```
 
 If there is an ampersand in the selector of the current litc, we make `selector` equal to the current litc, and replacing the ampersand with the original selector. For example:
@@ -1590,7 +1590,7 @@ However, multiple properties may be contained in the same key. For example, if t
 Hence, we'll take the key, split it by a comma (plus optional trailing spaces), and then iterate those properties and add them to `output`. When no commas are present, this will work anyway.
 
 ```javascript
-            dale.do (k.split (/,\s*/), function (v2) {
+            dale.go (k.split (/,\s*/), function (v2) {
                output += v2 + ':' + v + ';';
             });
          });
