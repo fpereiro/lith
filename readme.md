@@ -9,7 +9,9 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v5.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+
+lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
 ## Why lith instead of a template system?
 
@@ -99,9 +101,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@9fe30369a2acef87ed062131c8634d858b8f3143/dale.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@8442dc09f0518b93fc9b5fbdf5268d589b7d54fd/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@ae750ea2a5eb44c87e65e8a7f4ee9c0a9068a628/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@aad320880d95ca9aea84a6cf30f95949223b3f12/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@979a71d47b0038954dc28b94da95a1900d0aaf92/teishi.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -436,14 +438,14 @@ Actually, the generated CSS would be the above but eliminating all non-semantic 
 
 Notice that in the litc above, we surrounded the `font-weight` key with quotes. This is because it contains a dash, and hence you need to explicitly surround it by simple quotes, otherwise you would get a syntax error from the javascript parser. Every CSS property that contains dashes, colons, or other non-alphanumeric characters must be surrounded by quotes.
 
-If the attributes object is `undefined`, we consider the litc to have zero properties.
+If the attributes object is `undefined`, we consider the litc to have zero properties. In this case, an empty string will be generated.
 
 ```javascript
 ['a']
 ```
 
 ```css
-a {}
+// An empty string will result.
 ```
 
 If an attribute value is set to `undefined`, `null`, `false` or an empty string, the attribute will be ignored. For example:
@@ -452,14 +454,12 @@ If an attribute value is set to `undefined`, `null`, `false` or an empty string,
 ['a', {'font-weight': isHeader ? 'bold' : undefined}]
 ```
 
-will yield these two CSS rules, depending on whether `isHeader` is truthy or not:
+will yield either a CSS rule or an empty string, depending on whether `isHeader` is truthy or not:
 
 ```css
 a {font-weight: bold}
-```
 
-```css
-a {}
+// or an empty string
 ```
 
 If an attribute value is set to an integer, it will be considered as a pixel unit, hence the suffix `px` will be added to it. This feature is added because I found out that most of the time where I used integer units, they were pixels.
@@ -733,7 +733,28 @@ div h2:hover, div h3:hover {
 ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]
 ```
 
-Writing media queries with litcs is tricky. To sidestep this problem, you can use `lith.css.media`, which will transform your media query into a valid litc.
+### Litc usage
+
+litcs are generated using two core functions:
+
+1. `lith.css.g`: this function generates CSS from a litc.
+2. `lith.css.v`: a helper function that validates a litc.
+
+The input to both functions is either a litc or a litcbag. In either case, the input can only be a single array.
+
+You don't need to invoke `lith.css.v`, since `lith.css.g` validates its own input.
+
+If the input to lith is invalid, `false` is returned. Otherwise, you get a string with CSS.
+
+If the input is invalid, lith will print an error through teishi.
+
+If the input to `lith.g` contains anywhere a lith of the following form: `['style', ['div.canvas', {color: 'blue'}]]` (where the second element is an array and presumably a litc), `lith.g` will automatically invoke `lith.css.g` on the litc. The example above, when passed to `lith.g`, will generate `'<style>div.canvas{color:blue;}</style>`. If the contents are an array that is not a valid litc, the entire input will be considered invalid.
+
+As with `lith.g`, if you pass `true` as a second argument to `lith.css.g`, `prod mode` will be enabled and no validations will be performed. This will also happen if you set `lith.prod` to `true`.
+
+### litc helpers
+
+Writing media queries with litcs is not possible - at least not directly. For this purpose, you can use `lith.css.media`, which will transform your media query into a valid litc.
 
 For example, if you want to write the following media query in the context of a litc:
 
@@ -758,52 +779,33 @@ var litc = [
 
 If you passed valid arguments to `lith.css.media`, the output will always be a litc, which you can use standalone or nest within another one.
 
-Finally, if you want to pass a style attribute to a given element, you can use `lith.style`. This function takes one or two arguments: an optional `attributes` object (which is a list of lith attributes), and a object with litc attributes which is always required. Let's see some examples
+Finally, if you want to pass a `style` attribute to a given element, you can use `lith.css.style`. This function takes an object with litc attributes and returns either `false` (if the attributes are invalid) or a string with CSS which can be used as the `style` attribute of an element. Let's see some examples:
 
 ```javascript
 // This invocation:
-lith.style ({color: 'red', margin: 'solid 1px white'});
+{style: lith.css.style ({color: 'red', margin: 'solid 1px white'})}
 
-// will generate this object:
+// will generate this `attributes` object:
 {style: 'color:red;margin:solid 1px white;'}
 
 // This invocation:
-lith.style ({onsubmit: 'thunderstruck ()'}, {'height, width': 1}),
+lith.css.style ({'height, width': 1});
 
-// will generate this object:
-{style: 'height:100%;width:100%;', onsubmit: 'thunderstruck ()'},
+// will generate this `attributes` object:
+{style: 'height:100%;width:100%;'}
 ```
 
-If the lith attribute or the litc attribute are invalid, `lith.style` will print an error and return `false`.
-
-### Litc usage
-
-litcs are generated using two core functions:
-
-1. `lith.css.g`: this function generates CSS from a litc.
-2. `lith.css.v`: a helper function that validates a litc.
-
-The input to both functions is either a litc or a litcbag. In either case, the input can only be a single array.
-
-You don't need to invoke `lith.css.v`, since `lith.css.g` validates its own input.
-
-If the input to lith is invalid, `false` is returned. Otherwise, you get a string with CSS.
-
-If the input is invalid, lith will print an error through teishi.
-
-If the input to `lith.g` contains anywhere a lith of the following form: `['style', ['div.canvas', {color: 'blue'}]]` (where the second element is an array and presumably a litc), `lith.g` will automatically invoke `lith.css.g` on the litc. The example above, when passed to `lith.g`, will generate `'<style>div.canvas{color:blue;}</style>`. If the contents are an array that is not a valid litc, the entire input will be considered invalid.
-
-As with `lith.g`, if you pass `true` as a second argument to `lith.css.g`, `prod mode` will be enabled and no validations will be performed. This will also happen if you set `lith.prod` to `true`.
+If you pass a `true` second argument to this function, it will generate its CSS in `prod mode`.
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 270 lines long.
+The complete source code is contained in `lith.js`. It is about 260 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-lith - v5.0.0
+lith - v6.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -813,7 +815,7 @@ Please refer to readme.md to read the annotated source.
 
 ### Setup
 
-We wrap the entire file in a self-executing anonymous function. This practice is commonly named [the javascript module pattern](http://yuiblog.com/blog/2007/06/12/module-pattern/). The purpose of it is to wrap our code in a closure and hence avoid making the local variables we define here to be available outside of this module. A cursory test indicates that local variables exceed the scope of a file in the browser, but not in node.js. Globals exceed their scope despite this pattern - but we won't be using them.
+We wrap the entire file in a self-executing anonymous function. This practice is commonly named [the javascript module pattern](http://yuiblog.com/blog/2007/06/12/module-pattern/). The purpose of it is to wrap our code in a closure and hence avoid making the local variables we define here to be available outside of this module. A cursory test indicates that local variables exceed the scope of a script in the browser, but not in node.js. This means that this pattern is useful only on the browser.
 
 ```javascript
 (function () {
@@ -825,24 +827,24 @@ Since this file must run both in the browser and in node.js, we define a variabl
    var isNode = typeof exports === 'object';
 ```
 
-We require [dale](http://github.com/fpereiro/dale) and [teishi](http://github.com/fpereiro/teishi).
+We require [dale](http://github.com/fpereiro/dale) and [teishi](http://github.com/fpereiro/teishi). Note that, in the browser, `dale` and `teishi` will be loaded as global variables.
 
 ```javascript
    var dale   = isNode ? require ('dale')   : window.dale;
    var teishi = isNode ? require ('teishi') : window.teishi;
 ```
 
-This is the most succinct form I found to export an object containing all the public members (functions and constants) of a javascript module.
+This is the most succinct form I found to export an object containing all the public members (functions and constants) of a javascript module. Note that, in the browser, we use the global variable `lith` to export the library.
 
 ```javascript
    if (isNode) var lith = exports;
    else        var lith = window.lith = {};
 ```
 
-We create an alias to `teishi.t`, the function for finding out the type of an element. We do the same for `teishi.l`, a function for printing logs that also returns `false`.
+We create an alias to `teishi.type`, the function for finding out the type of an element. We do the same for `teishi.clog`, a function for printing logs that also returns `false`.
 
 ```javascript
-   var type = teishi.t, log = teishi.l;
+   var type = teishi.type, clog = teishi.clog;
 ```
 
 ### Constants
@@ -995,7 +997,7 @@ In case a validation error was found, we will print an informative error. Note w
 
 ```javascript
          ], function (error) {
-            log ('lith.v - Invalid lith', {error: error, 'original input': input});
+            clog ('lith.v - Invalid lith', {error: error, 'original input': input});
 ```
 
 Those are all the requirements for a valid lith. If it turns out to be valid, we will return the string `'Lith'`, otherwise we will return `false`. After we do that, we also close the conditional.
@@ -1022,7 +1024,7 @@ In case a validation error was found, we will print an informative error. Note w
 
 ```javascript
       ], function (error) {
-         log ('lith.v - Invalid lithbag', {error: error, 'original input': input});
+         clog ('lith.v - Invalid lithbag', {error: error, 'original input': input});
 ```
 
 Depending on whether the validation was successful or not, we return either `'Lithbag'` or `false`. After this, there's nothing else to do, so we close the function.
@@ -1049,7 +1051,7 @@ We now define `lith.g`, the main function of the library. This library takes an 
 We check that if either of `prod` or `lith.prod` are truthy, they are indeed `true`. We want to avoid a common usage error where multiple parameters are passed to `lith.g` in the hope of generating all of them - `lith.g` only accepts one `input`, and multiple parameters must be wrapped in an array. With this check, we prevent this error, which is compounded by the fact that validation is unwittingly turned off if a truthy second argument is passed.
 
 ```javascript
-         if ((prod || lith.prod) !== true) return log ('lith.g', 'prod or lith.prod must be true or undefined.');
+         if ((prod || lith.prod) !== true) return clog ('lith.g', 'prod or lith.prod must be true or undefined.');
 ```
 
 If we're here, bring on the `prod mode`. This means that *we will assume that `input` is either a valid lith or a valid lithbag*. We quickly determine whether `input` is a lith or not. For this we check that `input` is indeed an array with a valid HTML tag as its first element.
@@ -1276,7 +1278,7 @@ Either `litcs` or `litcbags` have to be arrays. We validate this and return `fal
 
 ```javascript
       if (teishi.stop (['litc or litcbag', input, 'array'], function (error) {
-         log ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
+         clog ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
       })) return false;
 ```
 
@@ -1288,9 +1290,9 @@ If the first element of the `input` is also an array, `input` can only be a litc
       if (input.length === 0 || type (input [0]) === 'array') return true;
 ```
 
-If we're here, we are then dealing with a purported `litc`.
+If we're here, we are then dealing with a purported litc.
 
-We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `litc`, depending on whether we found `attributes` or not.
+We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the litc, depending on whether we found `attributes` or not.
 
 ```javascript
       var attributes = type (input [1]) === 'object' ? input [1] : undefined;
@@ -1304,7 +1306,7 @@ We now check that `input` should fulfill the requirements for being a valid litc
          ['litc length', input.length, {min: 1, max: 3}, teishi.test.range],
 ```
 
-If, however, the `litc` has no attributes, its length can be at most 2, since it will only have a selector and contents.
+If, however, the litc has no attributes, its length can be at most 2, since it will only have a selector and contents.
 
 ```javascript
          [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
@@ -1322,7 +1324,7 @@ In case of error, we print a message. We close the `teishi.v` call and the funct
 
 ```javascript
       ], function (error) {
-         log ('lith.css.v - Invalid litc', {error: error, 'original input': input});
+         clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
       });
    }
 ```
@@ -1363,7 +1365,7 @@ This function also takes a "private" argument `selector`, used in recursive call
 We check that if either of `prod` or `lith.prod` are truthy, they are indeed `true`. As with `lith.g`, we want to avoid a common usage error where multiple parameters are passed to `lith.css.g` in the hope of generating all of them - `lith.css.g` only accepts one `input`, and multiple parameters must be wrapped in an array. With this check, we prevent this error, which is compounded by the fact that validation is unwittingly turned off if a truthy second argument is passed.
 
 ```javascript
-         if ((prod || lith.prod) !== true) return log ('lith.css.g', 'prod or lith.prod must be true or undefined.');
+         if ((prod || lith.prod) !== true) return clog ('lith.css.g', 'prod or lith.prod must be true or undefined.');
 ```
 
 We set `prod` to `true`, in case we're in this part of the conditional because of `lith.prod` being `true`.
@@ -1400,7 +1402,7 @@ We define a local variable `output` where we will concatenate the output of the 
 If the first element of `input` is also an array, it can only be a litcbag, because the first element of a litc is a selector, which is a string.
 
 ```javascript
-      if (teishi.t (input [0]) === 'array') {
+      if (type (input [0]) === 'array') {
 ```
 
 We iterate through the elements of the litcbag. If any of the results of the inner function is `false`, the iteration will be stopped.
@@ -1446,7 +1448,7 @@ If the litc currently being processed is not contained in any other litc, the se
       if (selector === undefined) selector = '';
 ```
 
-We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `litc`, depending on whether we found `attributes` or not.
+We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the litc, depending on whether we found `attributes` or not.
 
 ```javascript
       var attributes = type (input [1]) === 'object' ? input [1] : undefined;
@@ -1603,10 +1605,11 @@ We invoke `addAttributes` passing to it the attributes of the litc. If it return
       if (addAttributes (attributes) === false) return false;
 ```
 
-We place the closing brace since we're finished placing attributes.
+We check to see if any attributes were in fact added. If no attributes were added (and `output` is still the selector plus an opening brace), we set output to an empty string. Otherwise, we place the closing brace since we're finished placing attributes.
 
 ```javascript
-      output += '}';
+      if (output === selector + '{') output = '';
+      else                           output += '}';
 ```
 
 If the litc has contents, we process them.
@@ -1641,7 +1644,9 @@ We return `output` and close the function.
    }
 ```
 
-Here we define `lith.css.media`, which is a helper function for creating media queries. The reason we need a special function is because media queries, unlike normal CSS, rely on nested blocks.
+### Litc helpers
+
+We define `lith.css.media`, which is a helper function for creating media queries. The reason we need a special function is because media queries, unlike normal CSS, rely on nested blocks.
 
 This function takes a selector and a litc. We validate the selector, which will comprise the core of the media query (namely, the rest of the selector after `'@media'`. We will not validate the litc, since we assume that `lith.css.g` will validate it later in the context of the entire litc being generated. Note that the function will return `false` if `selector` is not a string.
 
@@ -1659,48 +1664,24 @@ Note that we add `'@media' ` at the beginning of the selector. Note also that th
    }
 ```
 
-We now define `lith.style`, a helper function that is useful to generate lith attributes with inline style.
+We now define `lith.css.style`, a helper function that is useful to generate CSS that can be placed within the `style` attribute of an element.
 
-This function can take one or two arguments. We will do argument detection inside the function.
+This function takes an `attributes` argument and an optional `prod` flag.
 
 ```javascript
-   lith.style = function () {
+   lith.css.style = function (attributes, prod) {
 ```
 
-If `lith.style` receives two arguments, we will consider its first argument to be a lith attributes object, which we'll place in a local variable `attributes`. Otherwise, we expect the function to receive a single argument, in which case we will initialize `attributes` to an empty object.
+We take `attributes` and pass it to `lith.css.g`, along with an empty selector. We also pass the `prod` flag, in case its truthy (this will enable `prod mode` for the generation of the resulting litc. We store the result of this invocation in a local variable `result`.
 
 ```javascript
-      var attributes = arguments.length === 2 ? arguments [0] : {};
+      var result = lith.css.g (['', attributes], prod);
 ```
 
-If `attributes` is not an object, we will print an error and return `false`.
+If `result` is `false`, it means that `attributes` was invalid, in which case we also return `false`. Otherwise, we take the `result` (which is a CSS string), remove its first and last characters (the opening and closing brace) and return it. We close the function.
 
 ```javascript
-      if (type (attributes) !== 'object') return log ('Invalid lith attributes passed to lith.style', attributes);
-```
-
-We will take the last argument passed to the function (which contains the expected litc attributes we want to place into a style attribute) and pass it to `lith.css.g`, passing an empty selector. We will set the result of this to `attributes.style`.
-
-```javascript
-      attributes.style = lith.css.g (['', teishi.last (arguments)]);
-```
-
-If `attributes.style` is `false`, this means that the litc selector we passed to `lith.css.g` is invalid. We print an error and return `false`.
-
-```javascript
-      if (attributes.style === false) return log ('Invalid style attributes passed to lith.style', teishi.last (arguments));
-```
-
-We remove the opening and closing braces from `attributes.style`.
-
-```javascript
-      attributes.style = attributes.style.slice (1, -1);
-```
-
-We return `attributes` and close the function.
-
-```javascript
-      return attributes;
+      return result === false ? result : result.slice (1, -1);
    }
 ```
 

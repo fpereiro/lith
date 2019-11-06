@@ -1,5 +1,5 @@
 /*
-lith - v5.0.0
+lith - v6.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -18,7 +18,7 @@ Please refer to readme.md to read the annotated source.
    if (isNode) var lith = exports;
    else        var lith = window.lith = {};
 
-   var type = teishi.t, log = teishi.l;
+   var type = teishi.type, clog = teishi.clog;
 
    // *** CONSTANTS ***
 
@@ -71,7 +71,7 @@ Please refer to readme.md to read the annotated source.
             ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
             ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
          ], function (error) {
-            log ('lith.v - Invalid lith', {error: error, 'original input': input});
+            clog ('lith.v - Invalid lith', {error: error, 'original input': input});
          }) ? 'Lith' : false;
       }
 
@@ -79,7 +79,7 @@ Please refer to readme.md to read the annotated source.
          ['lithbag', inputType, lith.k.lithbagElements, 'oneOf', teishi.test.equal],
          [inputType === 'array', ['lithbag elements', input, lith.k.lithbagElements, 'eachOf']]
       ], function (error) {
-         log ('lith.v - Invalid lithbag', {error: error, 'original input': input});
+         clog ('lith.v - Invalid lithbag', {error: error, 'original input': input});
       }) ? 'Lithbag' : false;
    }
 
@@ -88,7 +88,7 @@ Please refer to readme.md to read the annotated source.
    lith.g = function (input, prod) {
 
       if (prod || lith.prod) {
-         if ((prod || lith.prod) !== true) return log ('lith.g', 'prod or lith.prod must be true or undefined.');
+         if ((prod || lith.prod) !== true) return clog ('lith.g', 'prod or lith.prod must be true or undefined.');
          if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
             return lith.generateLith (input, true);
          }
@@ -157,7 +157,7 @@ Please refer to readme.md to read the annotated source.
    lith.css.v = function (input) {
 
       if (teishi.stop (['litc or litcbag', input, 'array'], function (error) {
-         log ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
+         clog ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
       })) return false;
 
       if (input.length === 0 || type (input [0]) === 'array') return true;
@@ -172,7 +172,7 @@ Please refer to readme.md to read the annotated source.
          lith.css.vAttributes (attributes),
          [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
       ], function (error) {
-         log ('lith.css.v - Invalid litc', {error: error, 'original input': input});
+         clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
       });
    }
 
@@ -187,16 +187,16 @@ Please refer to readme.md to read the annotated source.
    lith.css.g = function (input, prod, selector) {
 
       if (prod || lith.prod) {
-         if ((prod || lith.prod) !== true) return log ('lith.css.g', 'prod or lith.prod must be true or undefined.');
+         if ((prod || lith.prod) !== true) return clog ('lith.css.g', 'prod or lith.prod must be true or undefined.');
          prod = true;
       }
       if (! prod && lith.css.v (input) === false) return false;
 
       if (input.length === 0) return '';
 
-      var output = '';
-
       if (input [0] === 'LITERAL') return input [1];
+
+      var output = '';
 
       if (type (input [0]) === 'array') {
          if (dale.stop (input, false, function (v, k) {
@@ -237,7 +237,8 @@ Please refer to readme.md to read the annotated source.
 
       if (addAttributes (attributes) === false) return false;
 
-      output += '}';
+      if (output === selector + '{') output = '';
+      else                           output += '}';
 
       if (contents) {
          var recursiveOutput = lith.css.g (contents, prod, selector);
@@ -248,22 +249,16 @@ Please refer to readme.md to read the annotated source.
       return output;
    }
 
-   // *** MEDIA QUERIES ***
+   // *** LITC HELPERS ***
 
    lith.css.media = function (selector, litc) {
       if (teishi.stop (['selector', selector, 'string'])) return false;
       return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
    }
 
-   // *** STYLE HELPER ***
-
-   lith.style = function () {
-      var attributes = arguments.length === 2 ? arguments [0] : {};
-      if (type (attributes) !== 'object') return log ('Invalid lith attributes passed to lith.style', attributes);
-      attributes.style = lith.css.g (['', teishi.last (arguments)]);
-      if (attributes.style === false) return log ('Invalid style attributes passed to lith.style', teishi.last (arguments));
-      attributes.style = attributes.style.slice (1, -1);
-      return attributes;
+   lith.css.style = function (attributes, prod) {
+      var result = lith.css.g (['', attributes], prod);
+      return result === false ? result : result.slice (1, -1);
    }
 
 }) ();

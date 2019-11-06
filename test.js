@@ -1,5 +1,5 @@
 /*
-lith - v5.0.0
+lith - v6.0.0
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -101,7 +101,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
       fs.writeFileSync ('test.html', lith.g (output), 'utf8');
 
-      teishi.l ('Success', 'test.html generated successfully');
+      teishi.clog ('Success', 'test.html generated successfully');
    }
 
    else {
@@ -111,8 +111,6 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          var dale   = window.dale;
          var teishi = window.teishi;
          var lith   = window.lith;
-
-         var log    = teishi.l;
 
          // *** README EXAMPLES ***
 
@@ -295,7 +293,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ],
             [
                ['a'],
-               'a{}'
+               ''
             ],
             [
                ['a', {'font-weight': true ? 'bold' : undefined}],
@@ -303,7 +301,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ],
             [
                ['a', {'font-weight': false ? 'bold' : undefined}],
-               'a{}'
+               ''
             ],
             [
                ['a', {height: 20}],
@@ -386,62 +384,36 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ],
             [
                ['h2, h3', ['span', {color: 'green'}]],
-               'h2, h3{}h2 span, h3 span{color:green;}'
+               'h2 span, h3 span{color:green;}'
             ],
             [
                ['div', ['h2, h3', {color: 'green'}]],
-               'div{}div h2, div h3{color:green;}'
+               'div h2, div h3{color:green;}'
             ],
             [
                [['LITERAL', '@media {'], ['div', ['h2, h3', ['&:hover', {color: 'green'}]]], ['LITERAL', '}']],
-               '@media {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
+               '@media {div h2:hover, div h3:hover{color:green;}}'
             ],
             [
                lith.css.media ('(max-width: 600px)', ['div', ['h2, h3', ['&:hover', {color: 'green'}]]]),
-               '@media (max-width: 600px) {div{}div h2, div h3{}div h2:hover, div h3:hover{color:green;}}'
+               '@media (max-width: 600px) {div h2:hover, div h3:hover{color:green;}}'
             ]
          ], function (v) {
             if (lith.css.g (v [0]) !== v [1]) throw new Error ('A test failed! ' + v [1]);
          });
 
          dale.go ([
-            [
-               lith.style ({'height, width': 1}),
-               {style: 'height:100%;width:100%;'},
-            ],
-            [
-               lith.style ({onsubmit: 'thunderstruck ()'}, {'height, width': 1}),
-               {style: 'height:100%;width:100%;', onsubmit: 'thunderstruck ()'},
-            ],
-            [
-               lith.style ({'class': 'struggle'}, {color: 'red', margin: 'solid 1px white'}),
-               {style: 'color:red;margin:solid 1px white;', 'class': 'struggle'}
-            ],
-            [
-               lith.style ({'class': 'vamo'}, {}),
-               {style: '', 'class': 'vamo'}
-            ],
-            [
-               lith.style ({'class': 'vamo'}, []),
-               {style: '', 'class': 'vamo'}
-            ],
-            [
-               lith.style ({'class': 'vamo'}, /ern/),
-               false
-            ],
-            [
-               lith.style (/ern/, {color: 'blue'}),
-               false
-            ],
-            [
-               lith.style (/ern/),
-               false
-            ]
+            [lith.css.style ({'height, width': 1}), 'height:100%;width:100%;'],
+            [lith.css.style ({color: 'red', margin: 'solid 1px white'}), 'color:red;margin:solid 1px white;'],
+            [lith.css.style ({}), ''],
+            [lith.css.style ([]), ''],
+            [lith.css.style (/ern/), false],
+            [lith.css.style ({color: /ern/}), false],
          ], function (v, k) {
             if (! teishi.eq (v [0], v [1])) throw new Error ('A test failed! ' + v [1]);
          });
 
-         if (isNode) teishi.l ('Finished', 'All tests ran successfully!');
+         if (isNode) teishi.clog ('Finished', 'All tests ran successfully!');
          else        alert ('All tests passed successfully!');
 
          // *** INTERACTIVE EXAMPLE ***
@@ -455,7 +427,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                var result = lith.g ([['style', lith.css.g (css)], html], true);
             }
             catch (error) {
-               log (error);
+               teishi.clog (error);
                document.getElementById ('inputLith').style ['background-color'] = 'rgb(201, 48, 44)';
                document.getElementById ('inputLitc').style ['background-color'] = 'rgb(201, 48, 44)';
             }
@@ -468,12 +440,10 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             document.getElementById ('inputLitc').style ['background-color'] = 'white';
          }
 
-         try {
-            document.getElementById ('inputLith').value = JSON.stringify ([['h2', ['span', 'The word:']], ['a', {id: 'bird', 'class': null}, 'Surrrrrrrrrrrrfin\' bird']]);
-            document.getElementById ('inputLitc').value = JSON.stringify ([['a', {'font-size': 22, 'font-family': false, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]], ['h2, h3', ['span, strong', {display: 'block', margin: 20, 'font-weight': 'bold'}]]]);
-            window.recalc ();
-         }
-         catch (error) {}
+         document.getElementById ('inputLith').value = teishi.str ([['h2', ['span', 'The word:']], ['a', {id: 'bird', 'class': null}, 'Surrrrrrrrrrrrfin\' bird']]);
+         document.getElementById ('inputLitc').value = teishi.str ([['a', {'font-size': 22, 'font-family': false, mixin: {'border-top, border-bottom': 'solid 1px black'}}, ['&:hover', {cursor: 'pointer', color: 'orange', 'margin-left': .05}]], ['h2, h3', ['span, strong', {display: 'block', margin: 20, 'font-weight': 'bold'}]]]);
+
+         window.recalc ();
 
          // *** BENCHMARKING LIGHT METAL ***
 
@@ -495,7 +465,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          dale.go (lightmetal, function (v, k) {
             var sum = 0;
             dale.go (v, function (v2) {sum += v2});
-            log ('light metal benchmark', sum / 5 + ' ms', k);
+            teishi.clog ('light metal benchmark', sum / 5 + ' ms', k);
          });
 
          // *** BENCHMARK HEAVY METAL ***
@@ -510,7 +480,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
          if (lith.g (table, true) !== lith.g (table)) throw new Error ('dev & prod modes mismatch!');
 
-         log ('Starting heavy metal benchmark');
+         teishi.clog ('Starting heavy metal benchmark');
 
          dale.go (dale.times (5), function () {
 
@@ -526,7 +496,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          dale.go (heavymetal, function (v, k) {
             var sum = 0;
             dale.go (v, function (v2) {sum += v2});
-            log ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms)');
+            teishi.clog ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms)');
          });
 
          lith.perf = {light: lightmetal, heavy: heavymetal};
