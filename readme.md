@@ -103,7 +103,7 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@aad320880d95ca9aea84a6cf30f95949223b3f12/dale.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@979a71d47b0038954dc28b94da95a1900d0aaf92/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@1a364b552a1c7b7fe4525337f075960bc8388961/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -752,7 +752,9 @@ If the input to `lith.g` contains anywhere a lith of the following form: `['styl
 
 As with `lith.g`, if you pass `true` as a second argument to `lith.css.g`, `prod mode` will be enabled and no validations will be performed. This will also happen if you set `lith.prod` to `true`.
 
-### litc helpers
+### litc helper functions
+
+In this section we define two helper functions, `lith.css.media` and `lith.css.style`.
 
 Writing media queries with litcs is not possible - at least not directly. For this purpose, you can use `lith.css.media`, which will transform your media query into a valid litc.
 
@@ -779,7 +781,7 @@ var litc = [
 
 If you passed valid arguments to `lith.css.media`, the output will always be a litc, which you can use standalone or nest within another one.
 
-Finally, if you want to pass a `style` attribute to a given element, you can use `lith.css.style`. This function takes an object with litc attributes and returns either `false` (if the attributes are invalid) or a string with CSS which can be used as the `style` attribute of an element. Let's see some examples:
+The second helper, `lith.css.style`, is helpful if you want to generate a CSS string to directly place inside the `style` attribute of a lith. This function takes an object with litc attributes and returns either `false` (if the attributes are invalid) or a string with CSS which can be used as the `style` attribute of an element. Let's see some examples:
 
 ```javascript
 // This invocation:
@@ -795,7 +797,7 @@ lith.css.style ({'height, width': 1});
 {style: 'height:100%;width:100%;'}
 ```
 
-If you pass a `true` second argument to this function, it will generate its CSS in `prod mode`.
+If you pass a `true` second argument to this function, it will generate the CSS string in `prod mode`.
 
 ## Source code
 
