@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v6.0.0, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -101,9 +101,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@aad320880d95ca9aea84a6cf30f95949223b3f12/dale.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@979a71d47b0038954dc28b94da95a1900d0aaf92/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@1a364b552a1c7b7fe4525337f075960bc8388961/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@e074268833c7beef89796ba368b0489e0fbe5caf/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@74559ed3301dcdf9acabb3b938d9eeeab8d224db/teishi.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -807,7 +807,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v6.0.0
+lith - v6.0.1
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
