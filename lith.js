@@ -1,5 +1,5 @@
 /*
-lith - v6.0.1
+lith - v6.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -178,7 +178,7 @@ Please refer to readme.md to read the annotated source.
 
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf']
       ]);
    }
 

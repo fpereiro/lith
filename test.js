@@ -1,5 +1,5 @@
 /*
-lith - v6.0.1
+lith - v6.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -89,7 +89,6 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
                   'node_modules/teishi/teishi.js',
                   'lith.js',
                   'test.js'
-
                ], function (v) {
                   return ['script', {src: v}]
                })
@@ -408,7 +407,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             [lith.css.style ({}), ''],
             [lith.css.style ([]), ''],
             [lith.css.style (/ern/), false],
-            [lith.css.style ({color: /ern/}), false],
+            [lith.css.style ({color: /ern/}), false]
          ], function (v, k) {
             if (! teishi.eq (v [0], v [1])) throw new Error ('A test failed! ' + v [1]);
          });

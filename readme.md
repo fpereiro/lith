@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v6.0.1, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.2, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -103,7 +103,7 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@e074268833c7beef89796ba368b0489e0fbe5caf/dale.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@74559ed3301dcdf9acabb3b938d9eeeab8d224db/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@2d14700ed495f69ccacf2fce27a962504b80b467/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -807,7 +807,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v6.0.1
+lith - v6.0.2
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -1343,7 +1343,7 @@ We ensure that each of the elements within `attributes` are strings, integers, f
 We then close the call and the function.
 
 ```javascript
-         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf'],
+         ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf']
       ]);
    }
 ```
