@@ -1,5 +1,5 @@
 /*
-lith - v6.0.3
+lith - v6.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -412,6 +412,12 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             if (! teishi.eq (v [0], v [1])) throw new Error ('A test failed! ' + v [1]);
          });
 
+         if (teishi.type (lith.v (['a', /a/], true)) !== 'object') throw new Error ('lith.v didn\'t return error when receiving invalid lith & returnError flag');
+         if (teishi.type (lith.v (/a/, true)) !== 'object')        throw new Error ('lith.v didn\'t return error when receiving invalid lithbag & returnError flag');
+
+         if (lith.v (['a', 'a'], true) !== 'Lith')    throw new Error ('lith.v didn\'t return error when receiving valid lith & returnError flag');
+         if (lith.v ('a', true)        !== 'Lithbag') throw new Error ('lith.v didn\'t return error when receiving valid lithbag & returnError flag');
+
          if (isNode) teishi.clog ('Finished', 'All tests ran successfully!');
          else        alert ('All tests passed successfully!');
 
@@ -445,6 +451,8 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          window.recalc ();
 
          // *** BENCHMARKING LIGHT METAL ***
+
+         if (window.noBenchmark) return;
 
          var lightmetal = {prod: [], dev: []};
 

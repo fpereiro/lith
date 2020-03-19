@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v6.0.3, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.4, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -103,7 +103,7 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@7e1be108aa52beef7ad84f8c31649cfa23bc8f53/dale.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@93b977548301d17f8b2fb31a60242ceed810b1f1/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@8af751806759d262da26174dcf707a33c5b0b296/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -289,6 +289,8 @@ You don't need to invoke `lith.v`, since `lith.g` validates its own input.
 If the input to lith is invalid, `false` is returned. Otherwise, you get a string with HTML.
 
 If the input is invalid, lith will print an error through teishi.
+
+If you want to use `lith.v` to detect whether an input is either lith or a lithbag and you want to receive an error message if it's neither, invoke it passing a truthy second argument.
 
 ### `prod mode`
 
@@ -801,13 +803,13 @@ If you pass a `true` second argument to this function, it will generate the CSS 
 
 ## Source code
 
-The complete source code is contained in `lith.js`. It is about 260 lines long.
+The complete source code is contained in `lith.js`. It is about 270 lines long.
 
 Below is the annotated source.
 
 ```javascript
 /*
-lith - v6.0.3
+lith - v6.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -920,8 +922,10 @@ We will now proceed to handle the validation of liths.
 
 `lith.v` is the main validation function for liths. It takes an `input`, presumably a lith. This function will return `Lith` if it found a lith, `Lithbag` if it found a lithbag, and `false` if the input is neither.
 
+The function also takes a second argument, `returnError`, that can be used to make `lith.v` return an error if `input` is invalid.
+
 ```javascript
-   lith.v = function (input) {
+   lith.v = function (input, returnError) {
 ```
 
 We first note the type of the input and store it at `inputType`.
@@ -933,7 +937,7 @@ We first note the type of the input and store it at `inputType`.
 If `input` is an array and its first element is a string which also happens to be a valid HTML tag, we will consider `input` to be a lith! In previous versions of lith, you could write lithbags that started with a valid HTML tag, but it was seldom useful. By explicitly prohibiting it, we can very quickly determine whether `input` is a lith or a lithbag. This also will help to implement a fast `prod mode` when we define `lith.g` later.
 
 ```javascript
-      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) > -1) {
+      if (inputType === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
 ```
 
 We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `lith`, depending on whether we found `attributes` or not.
@@ -943,10 +947,10 @@ We define `attributes` and `contents`. `attributes` must either be an object or 
          var contents   = input [attributes ? 2 : 1];
 ```
 
-We start validating the lith in earnest.
+We start validating the lith in earnest and store the result in a variable `result`.
 
 ```javascript
-         return teishi.v ([
+         var result = teishi.v ([
 ```
 
 A lith has a length of 1 to 3 elements.
@@ -995,24 +999,27 @@ Contents can be any lithbag element: string, integer, float, array and undefined
             ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
 ```
 
-In case a validation error was found, we will print an informative error. Note we print both the error and the original input, which provides more context.
+If `returnError` is set, we pass `true` as an `apres` argument to `teishi.v`, so that if there's an error, the error itself is returned instead of being printed. Otherwise, we pass an `apres` function that will print an informative error. Note we print both the error and the original input, which provides more context.
 
 ```javascript
-         ], function (error) {
+         ], returnError ? true : function (error) {
             clog ('lith.v - Invalid lith', {error: error, 'original input': input});
+         });
 ```
 
-Those are all the requirements for a valid lith. If it turns out to be valid, we will return the string `'Lith'`, otherwise we will return `false`. After we do that, we also close the conditional.
+If `result` is true, we return the string `'Lith'`. Otherwise, we return either `false` (if `returnError` is not set) or an error message. Note we return the same error object that we printed in the `apres` function.
+
+After this, we also close the conditional that deals with the case of a lith.
 
 ```javascript
-         }) ? 'Lith' : false;
+         return result === true ? 'Lith' : (returnError ? {error: result, 'original input': input} : false);
       }
 ```
 
-If we're here, we can only be dealing with a lithbag (or an invalid input). We proceed to check whether `input` is a valid lithbag.
+If we're here, we can only be dealing with a lithbag (or an invalid input). We proceed to check whether `input` is a valid lithbag and store the result in a variable `result`.
 
 ```javascript
-      return teishi.v ([
+      var result = teishi.v ([
 ```
 
 We check that `input` has a type matching those of a valid lithbag element.
@@ -1022,17 +1029,19 @@ We check that `input` has a type matching those of a valid lithbag element.
          [inputType === 'array', ['lithbag elements', input, lith.k.lithbagElements, 'eachOf']]
 ```
 
-In case a validation error was found, we will print an informative error. Note we print both the error and the original input, which provides more context.
+As with the case of a lith, we pass a `true` apres parameter in case `returnError` is enabled. Otherwise, if case a validation error was found, we will print an informative error. Note we print both the error and the original input, which provides more context.
 
 ```javascript
-      ], function (error) {
+      ], returnError ? true : function (error) {
          clog ('lith.v - Invalid lithbag', {error: error, 'original input': input});
+      });
 ```
 
-Depending on whether the validation was successful or not, we return either `'Lithbag'` or `false`. After this, there's nothing else to do, so we close the function.
+If the validation was successful, we return the string `'Lithbag'`. Otherwise, if `returnError` is enabled, we return an error object, or `false` otherwise. After this, there's nothing else to do, so we close the function.
 
 ```javascript
       }) ? 'Lithbag' : false;
+      return result === true ? 'Lithbag' : (returnError ? {error: result, 'original input': input} : false);
    }
 ```
 

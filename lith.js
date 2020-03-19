@@ -1,5 +1,5 @@
 /*
-lith - v6.0.3
+lith - v6.0.4
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -50,16 +50,16 @@ Please refer to readme.md to read the annotated source.
 
    // *** LITH VALIDATION ***
 
-   lith.v = function (input) {
+   lith.v = function (input, returnError) {
 
       var inputType = type (input);
 
-      if (inputType === 'array' && type (input [0]) === 'string' && lith.k.tags.indexOf (input [0]) > -1) {
+      if (inputType === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
 
          var attributes = type (input [1]) === 'object' ? input [1] : undefined;
          var contents   = input [attributes ? 2 : 1];
 
-         return teishi.v ([
+         var result = teishi.v ([
             ['lith length', input.length, {min: 1, max: 3}, teishi.test.range],
             [attributes === undefined, ['length of lith without attributes', input.length, {max: 2}, teishi.test.range]],
             [
@@ -70,17 +70,19 @@ Please refer to readme.md to read the annotated source.
             ],
             ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
             ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
-         ], function (error) {
+         ], returnError ? true : function (error) {
             clog ('lith.v - Invalid lith', {error: error, 'original input': input});
-         }) ? 'Lith' : false;
+         });
+         return result === true ? 'Lith' : (returnError ? {error: result, 'original input': input} : false);
       }
 
-      return teishi.v ([
+      var result = teishi.v ([
          ['lithbag', inputType, lith.k.lithbagElements, 'oneOf', teishi.test.equal],
          [inputType === 'array', ['lithbag elements', input, lith.k.lithbagElements, 'eachOf']]
-      ], function (error) {
+      ], returnError ? true : function (error) {
          clog ('lith.v - Invalid lithbag', {error: error, 'original input': input});
-      }) ? 'Lithbag' : false;
+      });
+      return result === true ? 'Lithbag' : (returnError ? {error: result, 'original input': input} : false);
    }
 
    // *** LITH GENERATION ***
