@@ -1,5 +1,5 @@
 /*
-lith - v6.0.4
+lith - v6.0.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -110,6 +110,17 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          var dale   = window.dale;
          var teishi = window.teishi;
          var lith   = window.lith;
+
+         // We override dale.clog to avoid seeing a ton of alerts on old browsers.
+         try {
+            dale.clog = console.log.bind (console);
+         }
+         catch (error) {
+            dale.clog = function () {
+               var output = dale.go (arguments, function (v) {return v === undefined ? 'undefined' : v}).join (' ');
+               if (window.console) window.console.log (output);
+            }
+         }
 
          // *** README EXAMPLES ***
 
@@ -412,11 +423,15 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             if (! teishi.eq (v [0], v [1])) throw new Error ('A test failed! ' + v [1]);
          });
 
-         if (teishi.type (lith.v (['a', /a/], true)) !== 'object') throw new Error ('lith.v didn\'t return error when receiving invalid lith & returnError flag');
-         if (teishi.type (lith.v (/a/, true)) !== 'object')        throw new Error ('lith.v didn\'t return error when receiving invalid lithbag & returnError flag');
+         if (teishi.type (lith.v (['a', /a/], true)) !== 'object') throw new Error ('lith.v didn\'t return an error object when receiving invalid lith & returnError flag.');
+         if (teishi.type (lith.v (/a/, true)) !== 'object')        throw new Error ('lith.v didn\'t return an error object when receiving invalid lithbag & returnError flag.');
 
-         if (lith.v (['a', 'a'], true) !== 'Lith')    throw new Error ('lith.v didn\'t return error when receiving valid lith & returnError flag');
-         if (lith.v ('a', true)        !== 'Lithbag') throw new Error ('lith.v didn\'t return error when receiving valid lithbag & returnError flag');
+         if (lith.v (['a', 'a'], true) !== 'Lith')    throw new Error ('lith.v didn\'t return a value when receiving valid lith & returnError flag.');
+         if (lith.v ('a', true)        !== 'Lithbag') throw new Error ('lith.v didn\'t return a value when receiving valid lithbag & returnError flag.');
+
+         if (teishi.type (lith.css.v (/foo/, true)) !== 'object') throw new Error ('lith.css.v didn\'t return an error object when receiving an invalid input & returnError flag.');
+         if (teishi.type (lith.css.v ([/foo/], true)) !== 'object') throw new Error ('lith.css.v didn\'t return an error object when receiving an invalid input & returnError flag.');
+         if (lith.css.v ([], true) !== true) throw new Error ('lith.css.v didn\'t return true when receiving valid input & returnError flag.');
 
          if (isNode) teishi.clog ('Finished', 'All tests ran successfully!');
          else        alert ('All tests passed successfully!');
@@ -479,7 +494,16 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
          var heavymetal = {prod: [], dev: []};
 
-         var i = 0, max = 5000, table = [];
+         var times = 0, now = new Date ().getTime ();
+
+         // We determine how many times forArray can be run in 200ms, to set the number of iterations for the benchmark.
+         // This allows for running the benchmarking code more on faster engines and less on slower engines.
+         while (new Date ().getTime () <= now + 200) {
+            lith.g (['table', ['td', {'class': 'a'}, 'a']]);
+            times++;
+         }
+
+         var i = 0, max = times, table = [];
 
          while (i++ < max) {
             table.push (['td', {'class': i}, i]);
@@ -503,7 +527,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
          dale.go (heavymetal, function (v, k) {
             var sum = 0;
             dale.go (v, function (v2) {sum += v2});
-            teishi.clog ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms)');
+            teishi.clog ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms, ' + times + ' times)');
          });
 
          lith.perf = {light: lightmetal, heavy: heavymetal};

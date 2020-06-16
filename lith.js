@@ -1,5 +1,5 @@
 /*
-lith - v6.0.4
+lith - v6.0.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -156,26 +156,29 @@ Please refer to readme.md to read the annotated source.
 
    // *** LITC VALIDATION ***
 
-   lith.css.v = function (input) {
+   lith.css.v = function (input, returnError) {
 
-      if (teishi.stop (['litc or litcbag', input, 'array'], function (error) {
+      var result = teishi.v (['litc or litcbag', input, 'array'], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
-      })) return false;
+      });
+
+      if (result !== true) return returnError ? {error: result, 'original input': input} : false;
 
       if (input.length === 0 || type (input [0]) === 'array') return true;
 
       var attributes = type (input [1]) === 'object' ? input [1] : undefined;
       var contents   = input [attributes ? 2 : 1];
 
-      return teishi.v ([
+      result = teishi.v ([
          ['litc length', input.length, {min: 1, max: 3}, teishi.test.range],
          [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (attributes),
          [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
-      ], function (error) {
+      ], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
       });
+      return result === true ? result : (returnError ? {error: result, 'original input': input} : false);
    }
 
    lith.css.vAttributes = function (attributes) {

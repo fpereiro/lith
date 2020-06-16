@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v6.0.4, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.5, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -101,9 +101,9 @@ lith is written in Javascript. You can use it in the browser by sourcing the dep
 Or you can use these links to the latest version - courtesy of [jsDelivr](https://jsdelivr.com).
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@7e1be108aa52beef7ad84f8c31649cfa23bc8f53/dale.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@93b977548301d17f8b2fb31a60242ceed810b1f1/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@de25d3a20f753b2dc34f13282680b887488bb34d/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@3199cebc19ec639abf242fd8788481b65c7dc3a3/dale.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@f93f247a01a08e31658fa41f3250f8bbfb3d9080/teishi.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -754,6 +754,8 @@ If the input to `lith.g` contains anywhere a lith of the following form: `['styl
 
 As with `lith.g`, if you pass `true` as a second argument to `lith.css.g`, `prod mode` will be enabled and no validations will be performed. This will also happen if you set `lith.prod` to `true`.
 
+If you want to check whether an input is valid litc without having the error be printed to the console, you can invoke `lith.css.v` passing `true` as its second argument, in which case an object with the error will be returned.
+
 ### litc helper functions
 
 In this section we define two helper functions, `lith.css.media` and `lith.css.style`.
@@ -809,7 +811,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v6.0.4
+lith - v6.0.5
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -1277,20 +1279,26 @@ We create a `lith.css` object to hold the logic for CSS generation.
 
 ### Litc validation
 
-`lith.css.v` is analogue to `lith.v`: it takes an `input`, and determines whether it is a valid litc or litcbag.
+`lith.css.v` is analogue to `lith.v`: it takes an `input`, and determines whether it is a valid litc or litcbag. It also takes an optional `returnError` flag.
 
 Unlike `lith.v`, `lith.css.v` will hold all the validation logic in itself, instead of relying on helper functions. We do this because of litcs are considerably simpler than liths.
 
 ```javascript
-   lith.css.v = function (input) {
+   lith.css.v = function (input, returnError) {
 ```
 
-Either `litcs` or `litcbags` have to be arrays. We validate this and return `false` if it's not the case. Note we print an error message in case of error.
+Either `litcs` or `litcbags` have to be arrays. We validate this and store the result into a variable `result`. Note we print an error message in case of error, but only if `returnError` is not set.
 
 ```javascript
-      if (teishi.stop (['litc or litcbag', input, 'array'], function (error) {
+      var result = teishi.v (['litc or litcbag', input, 'array'], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
-      })) return false;
+      });
+```
+
+If the validation failed, we return either `false` (the default action) or an object with the error (if `returnError` is truthy).
+
+```javascript
+      if (result !== true) return returnError ? {error: result, 'original input': input} : false;
 ```
 
 If the array has length zero, we consider it an empty litcbag, so we return `true`.
@@ -1313,7 +1321,7 @@ We define `attributes` and `contents`. `attributes` must either be an object or 
 We now check that `input` should fulfill the requirements for being a valid litc. First of all, it should have length between 1 and 3.
 
 ```javascript
-      return teishi.v ([
+      result = teishi.v ([
          ['litc length', input.length, {min: 1, max: 3}, teishi.test.range],
 ```
 
@@ -1331,12 +1339,18 @@ We ensure that the selector is a string, we validate the attributes with a helpe
          [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
 ```
 
-In case of error, we print a message. We close the `teishi.v` call and the function, since there's nothing else to do.
+In case of error, we either print a message (if `returnError` is not enabled) or collect the error on the variable `result` (if `returnError` is enabled).
 
 ```javascript
-      ], function (error) {
+      ], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
       });
+```
+
+If `result` is `true`, `input` is valid and we return `true`. If the input was invalid, we return either `false` or an object containing the error. We then close the `teishi.v` call and the function, since there's nothing else to do.
+
+```javascript
+      return result === true ? result : (returnError ? {error: result, 'original input': input} : false);
    }
 ```
 
