@@ -1,5 +1,5 @@
 /*
-lith - v6.0.5
+lith - v6.0.6
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -69,7 +69,7 @@ Please refer to readme.md to read the annotated source.
                'each', teishi.test.match
             ],
             ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
-            ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
+            input [0] === 'LITERAL' ? ['lith LITERAL contents', contents, 'string'] : ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
          ], returnError ? true : function (error) {
             clog ('lith.v - Invalid lith', {error: error, 'original input': input});
          });
@@ -174,7 +174,7 @@ Please refer to readme.md to read the annotated source.
          [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (attributes),
-         [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
+         input [0] === 'LITERAL' ? ['litc LITERAL contents', contents, 'string'] : ['litc contents', contents, ['undefined', 'array'], 'oneOf']
       ], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
       });

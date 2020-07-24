@@ -1,5 +1,5 @@
 /*
-lith - v6.0.5
+lith - v6.0.6
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -135,7 +135,10 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             ['div', [
                ['style', [2]],
                ['p', 'something']
-            ]]
+            ]],
+            ['LITERAL', 2],
+            ['LITERAL', /a/],
+            ['LITERAL', ['a', 'b']]
          ], function (v) {
             if (lith.g (v) !== false) throw new Error ('Invalid input accepted.');
          });
@@ -153,7 +156,10 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
             [/b/],
             ['p', {}, /a/],
             ['p', {}, [/a/]],
-            ['p', {attribute: /boom/}]
+            ['p', {attribute: /boom/}],
+            ['LITERAL', 2],
+            ['LITERAL', /a/],
+            ['LITERAL', ['a', 'b']]
          ], function (v) {
             if (lith.css.g (v) !== false) throw new Error ('Invalid input accepted.');
          });

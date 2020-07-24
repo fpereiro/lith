@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v6.0.5, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.6, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -103,7 +103,7 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@3199cebc19ec639abf242fd8788481b65c7dc3a3/dale.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@f93f247a01a08e31658fa41f3250f8bbfb3d9080/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@a815e5e44b798793f74a29e05a10a6f12c490274/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -259,6 +259,13 @@ This will generate the following HTML:
    <p>Hi</p>
    <p>Hello!</p>
 </div>
+```
+
+Note: `LITERAL` pseudo-tags require their contents to be a string. The following examples are invalid and will yield an error:
+
+```javascript
+['LITERAL', 2]
+['LITERAL', ['hello', 'there']]
 ```
 
 ### Non-ASCII characters
@@ -811,7 +818,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v6.0.5
+lith - v6.0.6
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -995,10 +1002,10 @@ Attribute values can be strings, numbers (integers and floats). We also accept `
             ['lith attribute values', attributes, ['string', 'integer', 'float', 'undefined', 'null', 'boolean'], 'eachOf'],
 ```
 
-Contents can be any lithbag element: string, integer, float, array and undefined.
+Contents can be any lithbag element: string, integer, float, array and undefined. However, if we're dealing with a `LITERAL` pseudo-tag, the contents must be a string.
 
 ```javascript
-            ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
+            input [0] === 'LITERAL' ? ['lith LITERAL contents', contents, 'string'] : ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
 ```
 
 If `returnError` is set, we pass `true` as an `apres` argument to `teishi.v`, so that if there's an error, the error itself is returned instead of being printed. Otherwise, we pass an `apres` function that will print an informative error. Note we print both the error and the original input, which provides more context.
@@ -1331,12 +1338,12 @@ If, however, the litc has no attributes, its length can be at most 2, since it w
          [attributes === undefined, ['length of litc without attributes', input.length, {max: 2}, teishi.test.range]],
 ```
 
-We ensure that the selector is a string, we validate the attributes with a helper function `lith.css.vAttributes`, and we check that the contents are either `undefined` or an array (with the exception of the `LITERAL` pseudo-selector).
+We ensure that the selector is a string, we validate the attributes with a helper function `lith.css.vAttributes`, and we check that the contents are either `undefined` or an array (with the exception of the `LITERAL` pseudo-selector, in which case they must be a string).
 
 ```javascript
          ['litc selector', input [0], 'string'],
          lith.css.vAttributes (attributes),
-         [input [0] !== 'LITERAL', ['litc contents', contents, ['undefined', 'array'], 'oneOf']]
+         input [0] === 'LITERAL' ? ['litc LITERAL contents', contents, 'string'] : ['litc contents', contents, ['undefined', 'array'], 'oneOf']
 ```
 
 In case of error, we either print a message (if `returnError` is not enabled) or collect the error on the variable `result` (if `returnError` is enabled).
