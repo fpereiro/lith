@@ -1,5 +1,5 @@
 /*
-lith - v6.0.6
+lith - v6.0.7
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -11,11 +11,88 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
    var isNode = typeof exports === 'object';
 
    if (isNode) {
-
-      var fs     = require ('fs');
       var dale   = require ('dale');
       var teishi = require ('teishi');
       var lith   = require ('./lith.js');
+   }
+   else {
+      var dale   = window.dale;
+      var teishi = window.teishi;
+      var lith   = window.lith;
+   }
+
+   var perf = function () {
+      var lightmetal = {prod: [], dev: []};
+
+      dale.go (dale.times (20), function () {
+
+         dale.go (['prod', 'dev'], function (v) {
+            var time = teishi.time ();
+
+            lith.g (dale.go (dale.times (150), function () {
+               return ['input', {value: 'a'}];
+            }), v === 'prod');
+
+            lightmetal [v].push (teishi.time () - time);
+         });
+      });
+
+      dale.go (lightmetal, function (v, k) {
+         var sum = 0;
+         dale.go (v, function (v2) {sum += v2});
+         teishi.clog ('light metal benchmark', sum / 5 + ' ms', k);
+      });
+
+      // *** BENCHMARK HEAVY METAL ***
+
+      var heavymetal = {prod: [], dev: []};
+
+      var times = 0, now = new Date ().getTime ();
+
+      // We determine how many times a while loop with some teishi validation can be run in 50ms, to set the number of iterations for the benchmark.
+      // This allows for running the benchmarking code more on faster engines and less on slower engines.
+      // Note: we use teishi and not lith to set up the baseline; otherwise, if we improved lith's performance, the benchmark wouldn't be fair since it would perform more baseline iterations.
+      while (new Date ().getTime () <= now + 50) {
+         var input = ['a', 'b', 'c'];
+         teishi.v ([
+            ['input', input, 'array'],
+            ['input.length', input.length, 3, teishi.test.equal],
+            ['input element', input, ['a', 'b', 'c'], 'eachOf', teishi.test.equal]
+         ]);
+         times++;
+      }
+
+      var i = 0, table = [];
+
+      while (i++ < times) {
+         table.push (['td', {'class': i}, i]);
+      }
+
+      if (lith.g (table, true) !== lith.g (table)) throw new Error ('dev & prod modes mismatch!');
+
+      teishi.clog ('Starting heavy metal benchmark');
+
+      dale.go (dale.times (5), function () {
+
+         dale.go (['prod', 'dev'], function (v) {
+
+            var time = teishi.time ();
+            lith.g (table, v === 'prod');
+
+            heavymetal [v].push (teishi.time () - time);
+         });
+      });
+
+      dale.go (heavymetal, function (v, k) {
+         var sum = 0;
+         dale.go (v, function (v2) {sum += v2});
+         teishi.clog ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (times / (sum / 5)) + ' tags per ms, ' + times + ' times)');
+      });
+   }
+
+   if (isNode) {
+
+      var fs     = require ('fs');
 
       // Taken from http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126
       var cssReset = [
@@ -98,6 +175,8 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
       if (lith.g (output) !== lith.g (output, true)) throw new Error ('prod mode mismatch!');
 
+      perf ();
+
       fs.writeFileSync ('test.html', lith.g (output), 'utf8');
 
       teishi.clog ('Success', 'test.html generated successfully');
@@ -106,10 +185,6 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
    else {
 
       (function () {
-
-         var dale   = window.dale;
-         var teishi = window.teishi;
-         var lith   = window.lith;
 
          // We override dale.clog to avoid seeing a ton of alerts on old browsers.
          try {
@@ -471,72 +546,7 @@ To run the tests, run `node test.js` at the command prompt and then open `test.h
 
          window.recalc ();
 
-         // *** BENCHMARKING LIGHT METAL ***
-
-         if (window.noBenchmark) return;
-
-         var lightmetal = {prod: [], dev: []};
-
-         dale.go (dale.times (5), function () {
-
-            dale.go (['prod', 'dev'], function (v) {
-               var time = teishi.time ();
-
-               lith.g (dale.go (dale.times (150), function () {
-                  return ['input', {value: 'a'}];
-               }), v === 'prod');
-
-               lightmetal [v].push (teishi.time () - time);
-            });
-         });
-
-         dale.go (lightmetal, function (v, k) {
-            var sum = 0;
-            dale.go (v, function (v2) {sum += v2});
-            teishi.clog ('light metal benchmark', sum / 5 + ' ms', k);
-         });
-
-         // *** BENCHMARK HEAVY METAL ***
-
-         var heavymetal = {prod: [], dev: []};
-
-         var times = 0, now = new Date ().getTime ();
-
-         // We determine how many times forArray can be run in 200ms, to set the number of iterations for the benchmark.
-         // This allows for running the benchmarking code more on faster engines and less on slower engines.
-         while (new Date ().getTime () <= now + 200) {
-            lith.g (['table', ['td', {'class': 'a'}, 'a']]);
-            times++;
-         }
-
-         var i = 0, max = times, table = [];
-
-         while (i++ < max) {
-            table.push (['td', {'class': i}, i]);
-         }
-
-         if (lith.g (table, true) !== lith.g (table)) throw new Error ('dev & prod modes mismatch!');
-
-         teishi.clog ('Starting heavy metal benchmark');
-
-         dale.go (dale.times (5), function () {
-
-            dale.go (['prod', 'dev'], function (v) {
-
-               var time = teishi.time ();
-               lith.g (table, v === 'prod');
-
-               heavymetal [v].push (teishi.time () - time);
-            });
-         });
-
-         dale.go (heavymetal, function (v, k) {
-            var sum = 0;
-            dale.go (v, function (v2) {sum += v2});
-            teishi.clog ('heavy metal benchmark', sum / 5 + ' ms', k, '(' + Math.round (max / (sum / 5)) + ' tags per ms, ' + times + ' times)');
-         });
-
-         lith.perf = {light: lightmetal, heavy: heavymetal};
+         perf ();
 
       }) ();
    }

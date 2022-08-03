@@ -1,5 +1,5 @@
 /*
-lith - v6.0.6
+lith - v6.0.7
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -18,7 +18,7 @@ Please refer to readme.md to read the annotated source.
    if (isNode) var lith = exports;
    else        var lith = window.lith = {};
 
-   var type = teishi.type, clog = teishi.clog;
+   var type = teishi.type, clog = teishi.clog, inc = teishi.inc;
 
    // *** CONSTANTS ***
 
@@ -29,7 +29,7 @@ Please refer to readme.md to read the annotated source.
    }
 
    /*
-   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, 'eachOf', teishi.test.equal])) {
+   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, 'eachOf', teishi.test.equal], undefined, true)) {
       return false;
    }
    */
@@ -37,7 +37,7 @@ Please refer to readme.md to read the annotated source.
    // *** HELPER FUNCTIONS ***
 
    lith.entityify = function (string, prod) {
-      if (! prod && teishi.stop ('lith.entityify', ['Entityified string', string, 'string'])) return false;
+      if (! prod && teishi.stop ('lith.entityify', ['Entityified string', string, 'string'], undefined, true)) return false;
 
       return string
          .replace (/&/g, '&amp;')
@@ -54,7 +54,7 @@ Please refer to readme.md to read the annotated source.
 
       var inputType = type (input);
 
-      if (inputType === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
+      if (inputType === 'array' && inc (lith.k.tags, input [0])) {
 
          var attributes = type (input [1]) === 'object' ? input [1] : undefined;
          var contents   = input [attributes ? 2 : 1];
@@ -72,7 +72,7 @@ Please refer to readme.md to read the annotated source.
             input [0] === 'LITERAL' ? ['lith LITERAL contents', contents, 'string'] : ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
          ], returnError ? true : function (error) {
             clog ('lith.v - Invalid lith', {error: error, 'original input': input});
-         });
+         }, true);
          return result === true ? 'Lith' : (returnError ? {error: result, 'original input': input} : false);
       }
 
@@ -81,7 +81,7 @@ Please refer to readme.md to read the annotated source.
          [inputType === 'array', ['lithbag elements', input, lith.k.lithbagElements, 'eachOf']]
       ], returnError ? true : function (error) {
          clog ('lith.v - Invalid lithbag', {error: error, 'original input': input});
-      });
+      }, true);
       return result === true ? 'Lithbag' : (returnError ? {error: result, 'original input': input} : false);
    }
 
@@ -91,7 +91,7 @@ Please refer to readme.md to read the annotated source.
 
       if (prod || lith.prod) {
          if ((prod || lith.prod) !== true) return clog ('lith.g', 'prod or lith.prod must be true or undefined.');
-         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
+         if (type (input) === 'array' && inc (lith.k.tags, input [0])) {
             return lith.generateLith (input, true);
          }
          return lith.generateLithbag (input, false, true);
@@ -145,7 +145,7 @@ Please refer to readme.md to read the annotated source.
       }
       else output += lith.generateLithbag (contents, ((input [0] === 'style' || input [0] === 'script') ? true : false), prod);
 
-      if (lith.k.voidTags.indexOf (input [0]) === -1) output += '</' + input [0] + '>';
+      if (! inc (lith.k.voidTags, input [0])) output += '</' + input [0] + '>';
 
       return output;
    }
@@ -160,7 +160,7 @@ Please refer to readme.md to read the annotated source.
 
       var result = teishi.v (['litc or litcbag', input, 'array'], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
-      });
+      }, true);
 
       if (result !== true) return returnError ? {error: result, 'original input': input} : false;
 
@@ -177,14 +177,14 @@ Please refer to readme.md to read the annotated source.
          input [0] === 'LITERAL' ? ['litc LITERAL contents', contents, 'string'] : ['litc contents', contents, ['undefined', 'array'], 'oneOf']
       ], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
-      });
+      }, true);
       return result === true ? result : (returnError ? {error: result, 'original input': input} : false);
    }
 
    lith.css.vAttributes = function (attributes) {
       return teishi.v ([
          ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf']
-      ]);
+      ], undefined, true);
    }
 
    // *** LITC GENERATION ***
@@ -257,7 +257,7 @@ Please refer to readme.md to read the annotated source.
    // *** LITC HELPERS ***
 
    lith.css.media = function (selector, litc) {
-      if (teishi.stop (['selector', selector, 'string'])) return false;
+      if (teishi.stop (['selector', selector, 'string'], undefined, true)) return false;
       return [['LITERAL', '@media ' + selector + ' {'], litc, ['LITERAL', '}']];
    }
 

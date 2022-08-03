@@ -9,7 +9,7 @@ lith is a tool for generating HTML and CSS using javascript object literals. It 
 
 ## Current status of the project
 
-The current version of lith, v6.0.6, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
+The current version of lith, v6.0.7, is considered to be *stable* and *complete*. [Suggestions](https://github.com/fpereiro/lith/issues) and [patches](https://github.com/fpereiro/lith/pulls) are welcome. Besides bug fixes, there are no future changes planned.
 
 lith is part of the [ustack](https://github.com/fpereiro/ustack), a set of libraries to build web applications which aims to be fully understandable by those who use it.
 
@@ -102,8 +102,8 @@ Or you can use these links to the latest version - courtesy of [jsDelivr](https:
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/fpereiro/dale@3199cebc19ec639abf242fd8788481b65c7dc3a3/dale.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@f93f247a01a08e31658fa41f3250f8bbfb3d9080/teishi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@b936379e67e0d838fff34285d3dbf59171f199c6/lith.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/teishi@31a9cf552dbaee79fb1c2b7d12c6fad20f987983/teishi.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fpereiro/lith@/lith.js"></script>
 ```
 
 And you also can use it in node.js. To install: `npm install lith`
@@ -119,8 +119,6 @@ lith should work in any version of node.js (tested in v0.8.0 and above). Browser
 - Yandex 14.12 and above.
 
 The author wishes to thank [Browserstack](https://browserstack.com) for providing tools to test cross-browser compatibility.
-
-<a href="https://www.browserstack.com"><img src="https://bstacksupport.zendesk.com/attachments/token/kkjj6piHDCXiWrYlNXjKbFveo/?name=Logo-01.svg" width="150px" height="33px"></a>
 
 ## Liths
 
@@ -818,7 +816,7 @@ Below is the annotated source.
 
 ```javascript
 /*
-lith - v6.0.6
+lith - v6.0.7
 
 Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
 
@@ -854,10 +852,10 @@ This is the most succinct form I found to export an object containing all the pu
    else        var lith = window.lith = {};
 ```
 
-We create an alias to `teishi.type`, the function for finding out the type of an element. We do the same for `teishi.clog`, a function for printing logs that also returns `false`.
+We create an alias to `teishi.type`, the function for finding out the type of an element. We do the same for `teishi.clog`, a function for printing logs that also returns `false`. We also do the same for `teishi.inc`, a function for checking whether a given element is contained in an array.
 
 ```javascript
-   var type = teishi.type, clog = teishi.clog;
+   var type = teishi.type, clog = teishi.clog, inc = teishi.inc;
 ```
 
 ### Constants
@@ -893,11 +891,11 @@ Notice we also add `'!DOCTYPE HTML'` to this list.
 
 Below there's an `if` block that ensures that all the void tags are contained in `lith.k.tags`. If the check is not passed, the rest of lith will not be defined.
 
-Every time I modify the tag constants, I run this code to ensure that there are no tag inconsistencies. However, in production this code is commented out, to save you a few milliseconds. To check that the `voidTags` and the `tags` are consistent, please uncomment the code and run it for yourself.
+Every time I modify the tag constants, I run this code to ensure that there are no tag inconsistencies. However, in production this code is commented out, to save you a few milliseconds. To check that the `voidTags` and the `tags` are consistent, please uncomment the code and run it for yourself. Note we pass `true` as the fourth argument to the invocation of `teishi.stop`, to prevent teishi from validating the rule - this will save some execution time.
 
 ```javascript
    /*
-   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, 'eachOf', teishi.test.equal])) {
+   if (teishi.stop ([['HTML void tags', 'HTML tags'], lith.k.voidTags, lith.k.tags, 'eachOf', teishi.test.equal], undefined, true)) {
       return false;
    }
    */
@@ -909,11 +907,11 @@ Every time I modify the tag constants, I run this code to ensure that there are 
 
 This function was originally taken from [Douglas Crockford's `entityify`](http://javascript.crockford.com/remedial.html) and modified to replace quotes and backticks, using the approach in [John-David Dalton's lodash](https://github.com/lodash/lodash/blob/93b1e1f5ac72fad0507fc551704b88082a49fa48/lodash.js#L224).
 
-Notice we validate the input but only if the second argument is falsy. When `prod mode` is on, we avoid the validation to improve performance.
+Notice we validate the input but only if the second argument is falsy. When `prod mode` is on, we avoid the validation to improve performance. Note that, if we perform the validation, we pass `true` as the fourth argument to `teishi.stop` to prevent teishi from validating the rule itself (we know the rule to be correct already). The `undefined` as third argument is there simply to allow us to skip that argument and pass the fourth one instead.
 
 ```javascript
    lith.entityify = function (string, prod) {
-      if (! prod && teishi.stop ('lith.entityify', ['Entityified string', string, 'string'])) return false;
+      if (! prod && teishi.stop ('lith.entityify', ['Entityified string', string, 'string'], undefined, true)) return false;
 
       return string
          .replace (/&/g, '&amp;')
@@ -946,7 +944,7 @@ We first note the type of the input and store it at `inputType`.
 If `input` is an array and its first element is a string which also happens to be a valid HTML tag, we will consider `input` to be a lith! In previous versions of lith, you could write lithbags that started with a valid HTML tag, but it was seldom useful. By explicitly prohibiting it, we can very quickly determine whether `input` is a lith or a lithbag. This also will help to implement a fast `prod mode` when we define `lith.g` later.
 
 ```javascript
-      if (inputType === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
+      if (inputType === 'array' && inc (lith.k.tags, input [0])) {
 ```
 
 We define `attributes` and `contents`. `attributes` must either be an object or invalid. `contents` will be the second or third element of the `lith`, depending on whether we found `attributes` or not.
@@ -1008,12 +1006,12 @@ Contents can be any lithbag element: string, integer, float, array and undefined
             input [0] === 'LITERAL' ? ['lith LITERAL contents', contents, 'string'] : ['lith contents', contents, lith.k.lithbagElements, 'oneOf']
 ```
 
-If `returnError` is set, we pass `true` as an `apres` argument to `teishi.v`, so that if there's an error, the error itself is returned instead of being printed. Otherwise, we pass an `apres` function that will print an informative error. Note we print both the error and the original input, which provides more context.
+If `returnError` is set, we pass `true` as an `apres` argument to `teishi.v`, so that if there's an error, the error itself is returned instead of being printed. Otherwise, we pass an `apres` function that will print an informative error. Note we print both the error and the original input, which provides more context. Note also we pass `true` as the last argument to `teishi.v`, to avoid validating the rules that we pass to the function and hence improve performance. We have done this with all invocations to `teishi.v` and `teishi.stop`, and we will keep on doing it without further comment on it.
 
 ```javascript
          ], returnError ? true : function (error) {
             clog ('lith.v - Invalid lith', {error: error, 'original input': input});
-         });
+         }, true);
 ```
 
 If `result` is true, we return the string `'Lith'`. Otherwise, we return either `false` (if `returnError` is not set) or an error message. Note we return the same error object that we printed in the `apres` function.
@@ -1043,7 +1041,7 @@ As with the case of a lith, we pass a `true` apres parameter in case `returnErro
 ```javascript
       ], returnError ? true : function (error) {
          clog ('lith.v - Invalid lithbag', {error: error, 'original input': input});
-      });
+      }, true);
 ```
 
 If the validation was successful, we return the string `'Lithbag'`. Otherwise, if `returnError` is enabled, we return an error object, or `false` otherwise. After this, there's nothing else to do, so we close the function.
@@ -1077,7 +1075,7 @@ We check that if either of `prod` or `lith.prod` are truthy, they are indeed `tr
 If we're here, bring on the `prod mode`. This means that *we will assume that `input` is either a valid lith or a valid lithbag*. We quickly determine whether `input` is a lith or not. For this we check that `input` is indeed an array with a valid HTML tag as its first element.
 
 ```javascript
-         if (type (input) === 'array' && lith.k.tags.indexOf (input [0]) > -1) {
+         if (type (input) === 'array' && inc (lith.k.tags, input [0])) {
 ```
 
 If we're here, `input` is a lith. We return an invocation to `lith.generateLith`, passing it both `input` and `true`. The reason we pass a second argument is that because `lith.generateLith` can invoke `lith.g`, we need to preserve the `prod mode` flag in recursive calls.
@@ -1266,7 +1264,7 @@ Also, there's no error checking here, since if any of these possible elements is
 We place the closing tag if the element is not a void one.
 
 ```javascript
-      if (lith.k.voidTags.indexOf (input [0]) === -1) output += '</' + input [0] + '>';
+      if (! inc (lith.k.voidTags, input [0])) output += '</' + input [0] + '>';
 ```
 
 There's nothing else to do but to return `output` and close the function.
@@ -1299,7 +1297,7 @@ Either `litcs` or `litcbags` have to be arrays. We validate this and store the r
 ```javascript
       var result = teishi.v (['litc or litcbag', input, 'array'], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc or litcbag', {error: error, 'original input': input});
-      });
+      }, true);
 ```
 
 If the validation failed, we return either `false` (the default action) or an object with the error (if `returnError` is truthy).
@@ -1351,7 +1349,7 @@ In case of error, we either print a message (if `returnError` is not enabled) or
 ```javascript
       ], returnError ? true : function (error) {
          clog ('lith.css.v - Invalid litc', {error: error, 'original input': input});
-      });
+      }, true);
 ```
 
 If `result` is `true`, `input` is valid and we return `true`. If the input was invalid, we return either `false` or an object containing the error. We then close the `teishi.v` call and the function, since there's nothing else to do.
@@ -1374,7 +1372,7 @@ We then close the call and the function.
 
 ```javascript
          ['litc attribute values', attributes, ['string', 'integer', 'float', 'object', 'undefined', 'null', 'boolean'], 'eachOf']
-      ]);
+      ], undefined, true);
    }
 ```
 
@@ -1684,7 +1682,7 @@ This function takes a selector and a litc. We validate the selector, which will 
 
 ```javascript
    lith.css.media = function (selector, litc) {
-      if (teishi.stop (['selector', selector, 'string'])) return false;
+      if (teishi.stop (['selector', selector, 'string'], undefined, true)) return false;
 ```
 
 The trick to generate the nested block is to use the `LITERAL` pseudo-selector to generate the opening and the closing parts of the media query. The closing part is merely a closing curly brace. Surrounded by these two literals, we pass the litc unchanged. This will have the desired effect without modifying the logic of lith.css.g.
